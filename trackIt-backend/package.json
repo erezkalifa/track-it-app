@@ -1,0 +1,7 @@
+{
+  "name": "trackit-backend",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "python -m uvicorn app.main:app --reload"
+  }
+}

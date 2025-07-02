@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
-import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { api } from "../api/config";
 
 const PageContainer = styled.div`
@@ -107,6 +107,18 @@ const Input = styled.input`
   }
 `;
 
+const PasswordInputWrapper = styled(InputWrapper)`
+  svg.toggle-password {
+    left: auto;
+    right: 1rem;
+    cursor: pointer;
+    opacity: 0.6;
+    &:hover {
+      opacity: 1;
+    }
+  }
+`;
+
 const SubmitButton = styled.button`
   width: 100%;
   padding: 1rem;
@@ -200,6 +212,8 @@ const SignupPage: React.FC = () => {
     password: "",
     confirmPassword: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -306,7 +320,7 @@ const SignupPage: React.FC = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
-                autoComplete="email"
+                autoComplete="off"
               />
             </InputWrapper>
           </FormGroup>
@@ -322,17 +336,17 @@ const SignupPage: React.FC = () => {
                 value={formData.username}
                 onChange={handleChange}
                 placeholder="Choose a username"
-                autoComplete="username"
+                autoComplete="off"
               />
             </InputWrapper>
           </FormGroup>
 
           <FormGroup>
             <label htmlFor="password">Password</label>
-            <InputWrapper>
+            <PasswordInputWrapper>
               <FaLock />
               <Input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
                 value={formData.password}
@@ -340,15 +354,26 @@ const SignupPage: React.FC = () => {
                 placeholder="Create a password"
                 autoComplete="new-password"
               />
-            </InputWrapper>
+              {showPassword ? (
+                <FaEyeSlash
+                  className="toggle-password"
+                  onClick={() => setShowPassword(false)}
+                />
+              ) : (
+                <FaEye
+                  className="toggle-password"
+                  onClick={() => setShowPassword(true)}
+                />
+              )}
+            </PasswordInputWrapper>
           </FormGroup>
 
           <FormGroup>
             <label htmlFor="confirmPassword">Confirm Password</label>
-            <InputWrapper>
+            <PasswordInputWrapper>
               <FaLock />
               <Input
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 id="confirmPassword"
                 name="confirmPassword"
                 value={formData.confirmPassword}
@@ -356,7 +381,18 @@ const SignupPage: React.FC = () => {
                 placeholder="Confirm your password"
                 autoComplete="new-password"
               />
-            </InputWrapper>
+              {showConfirmPassword ? (
+                <FaEyeSlash
+                  className="toggle-password"
+                  onClick={() => setShowConfirmPassword(false)}
+                />
+              ) : (
+                <FaEye
+                  className="toggle-password"
+                  onClick={() => setShowConfirmPassword(true)}
+                />
+              )}
+            </PasswordInputWrapper>
           </FormGroup>
 
           {error && <ErrorMessage>{error}</ErrorMessage>}

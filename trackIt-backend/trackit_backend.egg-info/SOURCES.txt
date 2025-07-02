@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+setup.py
+trackit_backend.egg-info/PKG-INFO
+trackit_backend.egg-info/SOURCES.txt
+trackit_backend.egg-info/dependency_links.txt
+trackit_backend.egg-info/entry_points.txt
+trackit_backend.egg-info/top_level.txt

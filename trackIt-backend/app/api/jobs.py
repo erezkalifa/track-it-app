@@ -273,4 +273,57 @@ async def delete_job(job_id: int, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=500,
             detail=f"Failed to delete job: {str(e)}"
+        )
+
+@router.post("/{job_id}/resume")
+async def upload_resume(
+    job_id: int,
+    resume: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    """Upload a new resume version for a job"""
+    try:
+        # Check if job exists
+        job = db.query(Job).filter(Job.id == job_id).first()
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+
+        # Get next version number
+        next_version = 1
+        latest_version = db.query(ResumeVersion.version).filter(
+            ResumeVersion.job_id == job_id
+        ).order_by(ResumeVersion.version.desc()).scalar()
+        
+        if latest_version:
+            next_version = latest_version + 1
+        
+        # Save the file
+        file_path, original_filename = await FileService.save_resume(
+            resume, 
+            job_id,
+            next_version
+        )
+        
+        # Create resume version record
+        resume_version = ResumeVersion(
+            job_id=job_id,
+            version=next_version,
+            filename=original_filename,
+            file_path=file_path,
+            upload_date=datetime.utcnow()
+        )
+        db.add(resume_version)
+        db.commit()
+        db.refresh(resume_version)
+        
+        # Return the updated job
+        return job
+
+    except Exception as e:
+        print(f"Error uploading resume: {str(e)}")  # Debug print
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to upload resume: {str(e)}"
         ) 

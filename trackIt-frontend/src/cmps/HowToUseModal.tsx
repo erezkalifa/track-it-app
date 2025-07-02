@@ -1,5 +1,5 @@
-import React from "react";
-import styled from "styled-components";
+import React, { useState } from "react";
+import styled, { keyframes, css } from "styled-components";
 import {
   FaTimes,
   FaLightbulb,
@@ -7,7 +7,41 @@ import {
   FaFileAlt,
   FaFilter,
   FaEdit,
+  FaChevronRight,
 } from "react-icons/fa";
+
+const floatAnimation = keyframes`
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+`;
+
+const glowAnimation = keyframes`
+  0% { box-shadow: 0 0 5px rgba(99, 102, 241, 0.2), 0 0 20px rgba(99, 102, 241, 0.1); }
+  50% { box-shadow: 0 0 10px rgba(99, 102, 241, 0.4), 0 0 40px rgba(99, 102, 241, 0.2); }
+  100% { box-shadow: 0 0 5px rgba(99, 102, 241, 0.2), 0 0 20px rgba(99, 102, 241, 0.1); }
+`;
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+`;
+
+const slideIn = keyframes`
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+`;
+
+const progressAnimation = keyframes`
+  from { width: 0; }
+  to { width: 100%; }
+`;
+
+const pulseAnimation = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -15,43 +49,246 @@ const ModalOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(249, 250, 251, 0.95)
+  );
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
 `;
 
 const ModalContent = styled.div`
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 2.5rem;
-  max-width: 650px;
+  position: relative;
   width: 90%;
-  max-height: 85vh;
+  max-width: 1000px;
+  min-height: 600px;
+  background: white;
+  border-radius: 30px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  display: flex;
+  overflow: hidden;
+  animation: ${fadeIn} 0.5s ease-out;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    min-height: 90vh;
+    width: 95%;
+    margin: 1rem;
+  }
+`;
+
+const Sidebar = styled.div`
+  width: 300px;
+  background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%237b74ec' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 1.5rem;
+    min-height: auto;
+  }
+`;
+
+const MainContent = styled.div`
+  flex: 1;
+  padding: 2.5rem;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 
-  &::-webkit-scrollbar {
-    width: 6px;
+  @media (max-width: 768px) {
+    padding: 1.5rem;
   }
+`;
 
-  &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 3px;
+const Title = styled.h2`
+  color: white;
+  font-size: 2.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  white-space: nowrap;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  letter-spacing: -0.5px;
+
+  svg {
+    font-size: 1.75rem;
+    animation: ${floatAnimation} 3s ease-in-out infinite;
   }
+`;
 
-  &::-webkit-scrollbar-thumb {
+const Description = styled.p`
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  font-weight: 400;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  letter-spacing: -0.2px;
+`;
+
+interface StepProps {
+  $isActive: boolean;
+  $delay: number;
+  $isNavigating: boolean;
+}
+
+const Step = styled.div<StepProps>`
+  background: ${({ $isActive }) =>
+    $isActive ? "rgba(255, 255, 255, 0.15)" : "transparent"};
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  animation: ${({ $isActive, $isNavigating, $delay }) =>
+    $isActive && $isNavigating
+      ? css`
+          ${pulseAnimation} 0.3s ease
+        `
+      : css`
+          ${fadeIn} 0.5s ${$delay}s forwards
+        `};
+  opacity: 0;
+  position: relative;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
+    border-radius: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 
-    &:hover {
+  &:hover::before {
+    opacity: 1;
+  }
+
+  ${({ $isActive }) =>
+    $isActive &&
+    css`
       background: rgba(255, 255, 255, 0.15);
+    `}
+`;
+
+const StepNumber = styled.div`
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  position: relative;
+  z-index: 1;
+`;
+
+interface StepContentProps {
+  $isActive: boolean;
+  $isNavigating: boolean;
+}
+
+const StepContent = styled.div<StepContentProps>`
+  padding: 2rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+  height: calc(100% - 3rem);
+  display: flex;
+  flex-direction: column;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  animation: ${({ $isNavigating }) =>
+    $isNavigating
+      ? css`
+          ${slideIn} 0.3s ease-out
+        `
+      : "none"};
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    letter-spacing: -0.3px;
+
+    svg {
+      color: #6366f1;
+      font-size: 1.25rem;
+    }
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 0;
+      color: #4a5568;
+      font-size: 1.2rem;
+      line-height: 1.5;
+      border-bottom: 1px solid #f0f0f0;
+      font-weight: 400;
+      letter-spacing: -0.2px;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      svg {
+        color: #6366f1;
+        font-size: 0.875rem;
+        flex-shrink: 0;
+      }
     }
   }
 `;
@@ -60,116 +297,25 @@ const CloseButton = styled.button`
   position: absolute;
   top: 1.5rem;
   right: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: ${({ theme }) => theme.colors.textLight};
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  color: #1a1a1a;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 12px;
   transition: all 0.2s ease;
+  z-index: 10;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: ${({ theme }) => theme.colors.text};
-    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.1);
+    transform: rotate(90deg);
   }
 
   svg {
     font-size: 1.25rem;
-  }
-`;
-
-const Title = styled.h2`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: 2.5rem;
-  font-size: 1.75rem;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-
-  svg {
-    color: #6366f1;
-    font-size: 1.5rem;
-  }
-`;
-
-const Section = styled.div`
-  margin-bottom: 2.5rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  h3 {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: ${({ theme }) => theme.colors.text};
-    font-size: 1.25rem;
-    margin-bottom: 1.25rem;
-    font-weight: 500;
-
-    svg {
-      color: #6366f1;
-      font-size: 1.125rem;
-    }
-  }
-
-  p {
-    color: ${({ theme }) => theme.colors.textLight};
-    line-height: 1.7;
-    margin-bottom: 1.25rem;
-    font-size: 0.9375rem;
-    opacity: 0.9;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.875rem;
-
-    li {
-      color: ${({ theme }) => theme.colors.textLight};
-      padding-left: 1.75rem;
-      position: relative;
-      font-size: 0.9375rem;
-      line-height: 1.6;
-      opacity: 0.9;
-
-      &::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0.5rem;
-        width: 6px;
-        height: 6px;
-        background: #6366f1;
-        border-radius: 50%;
-        opacity: 0.8;
-      }
-
-      &:hover {
-        opacity: 1;
-
-        &::before {
-          opacity: 1;
-        }
-      }
-    }
   }
 `;
 
@@ -182,7 +328,63 @@ export const HowToUseModal: React.FC<HowToUseModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const [activeStep, setActiveStep] = useState(1);
+  const [isNavigating, setIsNavigating] = useState(false);
+
   if (!isOpen) return null;
+
+  const steps = [
+    {
+      id: 1,
+      title: "Overview",
+      icon: FaBriefcase,
+      content: [
+        "Track all your job applications in one place",
+        "Monitor application status and progress",
+        "Stay organized throughout your job search",
+        "Keep all important information accessible",
+      ],
+    },
+    {
+      id: 2,
+      title: "Managing Applications",
+      icon: FaFileAlt,
+      content: [
+        "Create new job application entries easily",
+        "Upload and manage multiple resume versions",
+        "Add detailed notes and important dates",
+        "Track communication history",
+      ],
+    },
+    {
+      id: 3,
+      title: "Filtering & Organization",
+      icon: FaFilter,
+      content: [
+        "Search for specific companies or positions",
+        "Filter applications by status or date",
+        "Sort and organize your applications",
+        "Get insights into your job search",
+      ],
+    },
+    {
+      id: 4,
+      title: "Managing Details",
+      icon: FaEdit,
+      content: [
+        "Edit application details anytime",
+        "Update status as you progress",
+        "Set reminders for follow-ups",
+        "Track interview schedules",
+      ],
+    },
+  ];
+
+  const handleStepClick = (stepId: number) => {
+    setIsNavigating(true);
+    setActiveStep(stepId);
+    setTimeout(() => setIsNavigating(false), 150);
+  };
 
   return (
     <ModalOverlay onClick={onClose}>
@@ -191,87 +393,55 @@ export const HowToUseModal: React.FC<HowToUseModalProps> = ({
           <FaTimes />
         </CloseButton>
 
-        <Title>
-          <FaLightbulb />
-          How to Use TrackIt
-        </Title>
+        <Sidebar>
+          <Title>
+            <FaLightbulb />
+            How To Use
+          </Title>
+          <Description>
+            Learn how to make the most of TrackIt and streamline your job
+            application process.
+          </Description>
 
-        <Section>
-          <h3>
-            <FaBriefcase />
-            Overview
-          </h3>
-          <p>
-            TrackIt is your personal job application tracking system. It helps
-            you organize and monitor your job search process by keeping track of
-            all your applications, resumes, and the status of each position
-            you've applied to.
-          </p>
-        </Section>
+          {steps.map((step, index) => (
+            <Step
+              key={step.id}
+              $isActive={activeStep === step.id}
+              $isNavigating={isNavigating}
+              onClick={() => handleStepClick(step.id)}
+              $delay={0.2 + index * 0.1}
+            >
+              <StepNumber>{step.id}</StepNumber>
+              {step.title}
+            </Step>
+          ))}
+        </Sidebar>
 
-        <Section>
-          <h3>
-            <FaFileAlt />
-            Managing Job Applications
-          </h3>
-          <ul>
-            <li>
-              Click the "Add Job" button to create a new job application entry
-            </li>
-            <li>
-              Fill in essential details like company name, position, application
-              date, and status
-            </li>
-            <li>
-              Upload different versions of your resume for each application
-            </li>
-            <li>
-              Add notes and important details about the application or interview
-              process
-            </li>
-            <li>
-              Track the status of your application (Applied, Interview, Offer,
-              Rejected, etc.)
-            </li>
-          </ul>
-        </Section>
-
-        <Section>
-          <h3>
-            <FaFilter />
-            Filtering and Organization
-          </h3>
-          <ul>
-            <li>
-              Use the filter bar to search for specific companies or positions
-            </li>
-            <li>Filter applications by their current status</li>
-            <li>
-              View all your applications in a clean, organized grid layout
-            </li>
-            <li>
-              Click on any job card to view full details and manage the
-              application
-            </li>
-          </ul>
-        </Section>
-
-        <Section>
-          <h3>
-            <FaEdit />
-            Managing Details
-          </h3>
-          <ul>
-            <li>View and edit job application details at any time</li>
-            <li>Upload and manage multiple versions of your resume</li>
-            <li>Track important dates and deadlines</li>
-            <li>Add and update notes about interviews or communications</li>
-            <li>
-              Update the application status as you progress through the hiring
-              process
-            </li>
-          </ul>
-        </Section>
+        <MainContent>
+          {steps.map(
+            (step) =>
+              activeStep === step.id && (
+                <StepContent
+                  key={step.id}
+                  $isActive={true}
+                  $isNavigating={isNavigating}
+                >
+                  <h3>
+                    <step.icon />
+                    {step.title}
+                  </h3>
+                  <ul>
+                    {step.content.map((item, index) => (
+                      <li key={index}>
+                        <FaChevronRight />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </StepContent>
+              )
+          )}
+        </MainContent>
       </ModalContent>
     </ModalOverlay>
   );

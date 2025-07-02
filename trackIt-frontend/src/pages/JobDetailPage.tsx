@@ -17,6 +17,9 @@ import {
   FaCalendarAlt,
   FaClipboardList,
   FaCheckCircle,
+  FaBookmark,
+  FaRegBookmark,
+  FaPencilAlt,
 } from "react-icons/fa";
 import { JobStatus } from "../types/types";
 import type { Job } from "../types/types";
@@ -32,6 +35,86 @@ const PageContainer = styled.div`
   gap: 2rem;
 `;
 
+const HeaderContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1rem;
+`;
+
+const HeaderActions = styled.div`
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const BackButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  span {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+`;
+
+const SaveButton = styled.button<{ $isSaved: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: ${({ $isSaved }) =>
+    $isSaved
+      ? "rgba(var(--color-primary-rgb), 0.15)"
+      : "rgba(255, 255, 255, 0.05)"};
+  border: 1px solid
+    ${({ $isSaved }) =>
+      $isSaved
+        ? "rgba(var(--color-primary-rgb), 0.3)"
+        : "rgba(255, 255, 255, 0.1)"};
+  border-radius: 12px;
+  color: ${({ theme, $isSaved }) =>
+    $isSaved ? theme.colors.primary : theme.colors.text};
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: ${({ $isSaved }) => ($isSaved ? "default" : "pointer")};
+  transition: all 0.2s ease;
+  pointer-events: ${({ $isSaved }) => ($isSaved ? "none" : "auto")};
+
+  svg {
+    font-size: 1rem;
+    color: ${({ theme, $isSaved }) =>
+      $isSaved ? theme.colors.primary : theme.colors.textLight};
+  }
+
+  &:hover {
+    background: ${({ $isSaved }) =>
+      $isSaved
+        ? "rgba(var(--color-primary-rgb), 0.15)"
+        : "rgba(255, 255, 255, 0.08)"};
+    border-color: ${({ $isSaved }) =>
+      $isSaved
+        ? "rgba(var(--color-primary-rgb), 0.3)"
+        : "rgba(255, 255, 255, 0.15)"};
+  }
+`;
+
 const CardsContainer = styled.div`
   display: grid;
   grid-template-columns: minmax(350px, 2fr) minmax(600px, 3fr);
@@ -44,9 +127,11 @@ const CardContainer = styled.div`
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   height: fit-content;
+  min-width: 400px;
+  width: 100%;
 `;
 
 const CardHeader = styled.div`
@@ -80,7 +165,7 @@ const DetailsGrid = styled.div`
 
 const FormGroup = styled.div`
   background: rgba(255, 255, 255, 0.02);
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.2s ease;
@@ -95,13 +180,13 @@ const FormGroup = styled.div`
   }
 
   svg {
-    font-size: 0.875rem;
+    font-size: 1.125rem;
     color: ${({ theme }) => theme.colors.textLight};
     opacity: 0.8;
   }
 
   label {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 500;
     color: ${({ theme }) => theme.colors.textLight};
     opacity: 0.8;
@@ -109,7 +194,7 @@ const FormGroup = styled.div`
   }
 
   .value {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     color: ${({ theme }) => theme.colors.text};
     line-height: 1.4;
     flex: 1;
@@ -132,6 +217,7 @@ const FormGroup = styled.div`
 
   &.notes {
     align-items: flex-start;
+    padding: 0.75rem 1rem;
 
     svg {
       margin-top: 2px;
@@ -159,41 +245,6 @@ const FormGroup = styled.div`
         border-radius: 4px;
       }
     }
-  }
-`;
-
-const ManageButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.875rem;
-  background: ${({ theme }) => theme.colors.primary}15;
-  border: 1px solid ${({ theme }) => theme.colors.primary}30;
-  border-radius: 12px;
-  color: ${({ theme }) => theme.colors.primary};
-  font-weight: 500;
-  transition: all 0.2s ease;
-  cursor: pointer;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.primary}25;
-    border-color: ${({ theme }) => theme.colors.primary}40;
-  }
-
-  svg {
-    font-size: 1rem;
-  }
-
-  span {
-    flex: 1;
-    text-align: left;
-    font-size: 0.9375rem;
-  }
-
-  small {
-    font-size: 0.8125rem;
-    opacity: 0.8;
   }
 `;
 
@@ -336,30 +387,92 @@ const ActionButtons = styled.div`
   justify-content: flex-end;
 `;
 
-const ActionButton = styled.button`
-  background: none;
-  border: none;
-  color: ${({ theme }) => theme.colors.textLight};
-  padding: 0.4rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+const ActionButton = styled.button<{
+  $variant?: "primary" | "secondary" | "danger";
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0.5rem;
+  width: 32px;
+  height: 32px;
+  background: ${({ theme, $variant }) => {
+    switch ($variant) {
+      case "primary":
+        return theme.colors.primary;
+      case "danger":
+        return "rgba(239, 68, 68, 0.1)";
+      case "secondary":
+      default:
+        return "rgba(255, 255, 255, 0.05)";
+    }
+  }};
+  border: 1px solid
+    ${({ theme, $variant }) => {
+      switch ($variant) {
+        case "primary":
+          return "transparent";
+        case "danger":
+          return "rgba(239, 68, 68, 0.2)";
+        case "secondary":
+        default:
+          return "rgba(255, 255, 255, 0.1)";
+      }
+    }};
+  border-radius: 8px;
+  color: ${({ theme, $variant }) => {
+    switch ($variant) {
+      case "primary":
+        return "white";
+      case "danger":
+        return theme.colors.danger;
+      case "secondary":
+      default:
+        return theme.colors.text;
+    }
+  }};
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
 
   svg {
     font-size: 1rem;
+    color: ${({ theme, $variant }) => {
+      switch ($variant) {
+        case "primary":
+          return "white";
+        case "danger":
+          return theme.colors.danger;
+        case "secondary":
+        default:
+          return theme.colors.primary;
+      }
+    }};
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: ${({ theme }) => theme.colors.text};
-  }
-
-  &.delete:hover {
-    color: ${({ theme }) => theme.colors.danger};
-    background: rgba(220, 38, 38, 0.1);
+    background: ${({ theme, $variant }) => {
+      switch ($variant) {
+        case "primary":
+          return `${theme.colors.primary}dd`;
+        case "danger":
+          return "rgba(239, 68, 68, 0.15)";
+        case "secondary":
+        default:
+          return "rgba(255, 255, 255, 0.08)";
+      }
+    }};
+    border-color: ${({ theme, $variant }) => {
+      switch ($variant) {
+        case "primary":
+          return "transparent";
+        case "danger":
+          return "rgba(239, 68, 68, 0.3)";
+        case "secondary":
+        default:
+          return "rgba(255, 255, 255, 0.15)";
+      }
+    }};
   }
 `;
 
@@ -405,173 +518,229 @@ const DeleteJobButton = styled.button`
   }
 `;
 
-const Input = styled.input`
+const EditableField = styled.div`
+  position: relative;
   width: 100%;
-  padding: 0.75rem;
-  font-size: 0.9375rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: ${({ theme }) => theme.colors.text};
-  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 
-  &:hover,
+  &:hover:not(.editing) {
+    background: rgba(var(--color-primary-rgb), 0.03);
+
+    .value {
+      color: ${({ theme }) => theme.colors.primary};
+      opacity: 1;
+    }
+    .edit-icon {
+      color: ${({ theme }) => theme.colors.primary};
+      opacity: 0.9;
+    }
+  }
+
+  &.editing {
+    border: 1px solid ${({ theme }) => theme.colors.primary};
+    background: rgba(var(--color-primary-rgb), 0.03);
+  }
+`;
+
+const ValueContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+
+  .value {
+    transition: color 0.2s ease, opacity 0.2s ease;
+    opacity: 0.85;
+    font-size: 0.875rem;
+  }
+`;
+
+const EditIcon = styled.div`
+  font-size: 1rem;
+  opacity: 0.6;
+  transition: color 0.2s ease, opacity 0.2s ease;
+`;
+
+const Input = styled.input`
+  background: transparent;
+  border: none;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 0.875rem;
+  width: 100%;
+
   &:focus {
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.08);
     outline: none;
+  }
+`;
+
+const Select = styled.select`
+  background: transparent;
+  border: none;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 0.875rem;
+  width: 100%;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+
+  option {
+    background: ${({ theme }) => theme.colors.background};
+    color: ${({ theme }) => theme.colors.text};
   }
 `;
 
 const TextArea = styled.textarea`
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 0.9375rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  background: transparent;
+  border: none;
   color: ${({ theme }) => theme.colors.text};
-  resize: vertical;
+  font-size: 0.875rem;
+  width: 100%;
   min-height: 100px;
-  transition: all 0.2s ease;
+  resize: vertical;
 
-  &:hover,
   &:focus {
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.08);
     outline: none;
   }
 `;
 
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-`;
+interface EditableValueProps {
+  value: string;
+  type?: string;
+  field: keyof Job;
+  onSave: (field: keyof Job, value: string) => void;
+  options?: string[];
+  multiline?: boolean;
+}
 
-const EditButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-left: auto;
+const EditableValue: React.FC<EditableValueProps> = ({
+  value,
+  type = "text",
+  field,
+  onSave,
+  options,
+  multiline,
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedValue, setEditedValue] = useState(value);
+  const inputRef = React.useRef<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  >(null);
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.05);
-  }
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
 
-  svg {
-    font-size: 1rem;
-  }
-`;
+  const handleClick = () => {
+    setIsEditing(true);
+  };
 
-const SaveButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: ${({ theme }) => theme.colors.primary};
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex: 1;
+  const handleBlur = () => {
+    setIsEditing(false);
+    if (editedValue !== value) {
+      onSave(field, editedValue);
+    }
+  };
 
-  &:hover {
-    opacity: 0.9;
-  }
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !multiline) {
+      handleBlur();
+    }
+    if (e.key === "Escape") {
+      setEditedValue(value);
+      setIsEditing(false);
+    }
+  };
 
-  svg {
-    font-size: 1rem;
-  }
-`;
-
-const CancelButton = styled(SaveButton)`
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: ${({ theme }) => theme.colors.text};
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.05);
-  }
-`;
-
-const BackButton = styled.button`
-  /* Position */
-  position: absolute;
-  top: -36px;
-  left: 0;
-
-  /* Layout */
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0;
-
-  /* Styling */
-  background: none;
-  border: none;
-  color: ${({ theme }) => theme.colors.textLight};
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-size: 0.875rem;
-  font-weight: 500;
-  opacity: 0.8;
-
-  /* Icon styling */
-  span {
-    font-size: 1.25rem;
-    line-height: 1;
-    position: relative;
-    top: -1px;
-  }
-
-  &:hover {
-    opacity: 1;
-    color: ${({ theme }) => theme.colors.text};
-    transform: translateX(-2px);
-  }
-`;
-
-const CardWrapper = styled.div`
-  position: relative;
-`;
+  return (
+    <EditableField className={isEditing ? "editing" : ""} onClick={handleClick}>
+      {isEditing ? (
+        multiline ? (
+          <TextArea
+            ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+            value={editedValue}
+            onChange={(e) => setEditedValue(e.target.value)}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+          />
+        ) : options ? (
+          <Select
+            ref={inputRef as React.RefObject<HTMLSelectElement>}
+            value={editedValue}
+            onChange={(e) => setEditedValue(e.target.value)}
+            onBlur={handleBlur}
+          >
+            {options.map((option) => (
+              <option key={option} value={option.toLowerCase()}>
+                {option.charAt(0).toUpperCase() + option.slice(1)}
+              </option>
+            ))}
+          </Select>
+        ) : (
+          <Input
+            ref={inputRef as React.RefObject<HTMLInputElement>}
+            type={type}
+            value={editedValue}
+            onChange={(e) => setEditedValue(e.target.value)}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            max={
+              type === "date"
+                ? new Date().toISOString().split("T")[0]
+                : undefined
+            }
+          />
+        )
+      ) : (
+        <ValueContainer>
+          <div className="value">
+            {field === "status"
+              ? value.charAt(0).toUpperCase() + value.slice(1)
+              : field === "applied_date" && value
+              ? new Date(value).toLocaleDateString()
+              : value || "Not specified"}
+          </div>
+          <EditIcon className="edit-icon">
+            <FaPencilAlt />
+          </EditIcon>
+        </ValueContainer>
+      )}
+    </EditableField>
+  );
+};
 
 const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { jobs, setJobs } = useJobs();
   const [job, setJob] = useState<Job | null>(null);
+  const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { jobs } = useJobs();
   const { isGuest } = useAuth();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchJob = async () => {
-      if (!id) return;
-
       try {
         if (isGuest) {
-          // For guest users, find the job in the local jobs array
-          const foundJob = jobs.find((j) => j.id === parseInt(id));
+          const foundJob = jobs.find((j) => j.id === Number(id));
           if (foundJob) {
             setJob(foundJob);
           } else {
             setError("Job not found");
           }
         } else {
-          // For regular users, fetch from API
           const response = await api.get(`/api/jobs/${id}`);
           setJob(response.data);
         }
@@ -586,12 +755,53 @@ const JobDetailPage: React.FC = () => {
     fetchJob();
   }, [id, isGuest, jobs]);
 
+  const handleFieldSave = async (field: keyof Job, value: string) => {
+    if (!job) return;
+
+    try {
+      const updatedJob = { ...job, [field]: value };
+      const { data } = await api.put(`/api/jobs/${id}`, updatedJob);
+      setJob(data);
+
+      // Update the job in the jobs context
+      setJobs((prevJobs) => prevJobs.map((j) => (j.id === data.id ? data : j)));
+    } catch (error) {
+      console.error(`Error updating ${field}:`, error);
+    }
+  };
+
   const handleFileUpload = () => {
     if (isGuest) {
       alert("File upload is not available in guest mode");
       return;
     }
-    // Handle file upload logic
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0] || !id) return;
+
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append("resume", file);
+
+    try {
+      await api.post(`/api/jobs/${id}/resume`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      // Refresh the job data to show the new resume
+      const response = await api.get(`/api/jobs/${id}`);
+      setJob(response.data);
+
+      // Reset the file input
+      e.target.value = "";
+    } catch (error) {
+      console.error("Error uploading resume:", error);
+      alert("Failed to upload resume");
+    }
   };
 
   const handleView = async (versionId: number) => {
@@ -651,90 +861,93 @@ const JobDetailPage: React.FC = () => {
 
     try {
       await api.delete(`/api/jobs/${id}`);
-      navigate("/"); // Navigate back to the job list
+      // Update the jobs context by filtering out the deleted job
+      setJobs(jobs.filter((j) => j.id !== parseInt(id)));
+      navigate("/jobs"); // Navigate back to the job list
     } catch (error) {
       console.error("Error deleting job:", error);
       alert("Failed to delete job");
     }
   };
 
-  if (isLoading) {
-    return (
-      <PageContainer>
-        <div>Loading job details...</div>
-      </PageContainer>
-    );
-  }
-
-  if (error || !job) {
-    return (
-      <PageContainer>
-        <div>{error || "Job not found"}</div>
-      </PageContainer>
-    );
-  }
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+  if (!job) return null;
 
   return (
     <PageContainer>
+      <HeaderContainer>
+        <BackButton onClick={() => navigate("/jobs")}>
+          <span>←</span> Back to Jobs
+        </BackButton>
+        <SaveButton onClick={() => setIsSaved(!isSaved)} $isSaved={isSaved}>
+          {isSaved ? <FaBookmark /> : <FaRegBookmark />}
+          {isSaved ? "Saved" : "Save Job"}
+        </SaveButton>
+      </HeaderContainer>
+
       <CardsContainer>
-        <CardWrapper>
-          <BackButton onClick={() => navigate("/jobs")}>
-            <span>&larr;</span> Back to Jobs
-          </BackButton>
-          <CardContainer>
-            <CardHeader>
-              <FaBriefcase />
-              <h2>Job Details</h2>
-            </CardHeader>
+        <CardContainer>
+          <CardHeader>
+            <FaBriefcase />
+            <h2>Job Details</h2>
+          </CardHeader>
 
-            <DetailsGrid>
-              <FormGroup>
-                <FaBuilding />
-                <label>Company</label>
-                <div className="value">{job.company}</div>
-              </FormGroup>
+          <DetailsGrid>
+            <FormGroup>
+              <FaBuilding />
+              <label>Company</label>
+              <EditableValue
+                value={job.company}
+                field="company"
+                onSave={handleFieldSave}
+              />
+            </FormGroup>
 
-              <FormGroup>
-                <FaSuitcase />
-                <label>Position</label>
-                <div className="value">{job.position}</div>
-              </FormGroup>
+            <FormGroup>
+              <FaSuitcase />
+              <label>Position</label>
+              <EditableValue
+                value={job.position}
+                field="position"
+                onSave={handleFieldSave}
+              />
+            </FormGroup>
 
-              <FormGroup className="status">
-                <FaCheckCircle />
-                <label>Status</label>
-                <div className="value">{job.status}</div>
-              </FormGroup>
+            <FormGroup>
+              <FaClipboardList />
+              <label>Status</label>
+              <EditableValue
+                value={job.status}
+                field="status"
+                onSave={handleFieldSave}
+                options={Object.values(JobStatus)}
+              />
+            </FormGroup>
 
-              <FormGroup>
-                <FaCalendarAlt />
-                <label>Applied</label>
-                <div className="value">
-                  {job.applied_date
-                    ? new Date(job.applied_date).toLocaleDateString(undefined, {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      })
-                    : "Not set"}
-                </div>
-              </FormGroup>
+            <FormGroup>
+              <FaCalendarAlt />
+              <label>Applied</label>
+              <EditableValue
+                value={job.applied_date || ""}
+                type="date"
+                field="applied_date"
+                onSave={handleFieldSave}
+              />
+            </FormGroup>
 
-              <FormGroup className="notes">
-                <FaClipboardList />
-                <label>Notes</label>
-                <div className="value">{job.notes || "No notes added yet"}</div>
-              </FormGroup>
-            </DetailsGrid>
-
-            <ManageButton>
-              <FaCheckCircle />
-              <span>Manage Interview Process</span>
-              <small>•</small>
-              <small>Track Progress</small>
-            </ManageButton>
-          </CardContainer>
-        </CardWrapper>
+            <FormGroup style={{ alignItems: "flex-start" }}>
+              <FaFileAlt />
+              <label>Notes</label>
+              <EditableValue
+                value={job.notes || ""}
+                field="notes"
+                onSave={handleFieldSave}
+                multiline
+              />
+            </FormGroup>
+          </DetailsGrid>
+        </CardContainer>
 
         <div>
           <CardContainer>
@@ -752,6 +965,13 @@ const JobDetailPage: React.FC = () => {
                 Choose File
               </ChooseFileButton>
             </UploadArea>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+              accept=".pdf,.doc,.docx"
+            />
 
             <VersionsTable>
               <TableHeader>
