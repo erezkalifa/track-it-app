@@ -5,7 +5,9 @@ from pathlib import Path
 from datetime import datetime
 
 class FileService:
-    UPLOAD_DIR = Path("uploads/resumes")
+    # Get the absolute path to the project root
+    PROJECT_ROOT = Path(__file__).parent.parent.parent
+    UPLOAD_DIR = PROJECT_ROOT / "uploads" / "resumes"
 
     @classmethod
     async def save_resume(cls, file: UploadFile, job_id: int, version: int) -> tuple[str, str]:
@@ -52,5 +54,9 @@ class FileService:
         """
         Delete a resume file
         """
-        if os.path.exists(file_path):
-            os.remove(file_path) 
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except Exception as e:
+            print(f"Error deleting file: {str(e)}")
+            raise Exception(f"Could not delete file: {str(e)}") 

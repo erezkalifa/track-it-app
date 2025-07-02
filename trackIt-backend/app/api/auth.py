@@ -6,6 +6,7 @@ import logging
 import uuid
 
 from app.db.session import get_db
+from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse, Token, UserLogin
 from app.services.auth_service import (
     create_user,
@@ -61,7 +62,7 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
         "user": UserResponse.from_orm(user)
     }
 
-@router.post("/auth/guest-login")
+@router.post("/guest-login")
 async def guest_login():
     """Create a temporary guest access token without database storage"""
     try:

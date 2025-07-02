@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { JobCard } from "../cmps/JobCard";
 import { FilterBar } from "../cmps/FilterBar";
 import { type Job, JobStatus } from "../types/types";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useJobs } from "../context/JobContext";
 
 const PageContainer = styled.div`
@@ -26,9 +26,10 @@ const PageSubtitle = styled.p`
 
 const JobsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 2rem;
   margin-top: 2rem;
+  align-items: start;
 `;
 
 const EmptyState = styled.div`
@@ -94,6 +95,8 @@ export const JobListPage = () => {
     status: "",
   });
   const navigate = useNavigate();
+  const location = useLocation();
+  const [newJobId, setNewJobId] = useState<number | null>(null);
 
   // Apply filters whenever filters state changes
   useEffect(() => {
@@ -119,6 +122,17 @@ export const JobListPage = () => {
 
     setFilteredJobs(result);
   }, [filters, jobs]);
+
+  useEffect(() => {
+    // Check if we have a new job ID in the location state
+    if (location.state?.newJobId) {
+      setNewJobId(location.state.newJobId);
+      // Clear the highlight effect after animation
+      setTimeout(() => {
+        setNewJobId(null);
+      }, 1500);
+    }
+  }, [location]);
 
   const handleFilterChange = (filterType: string, value: string) => {
     setFilters((prev) => ({ ...prev, [filterType]: value }));
@@ -164,7 +178,7 @@ export const JobListPage = () => {
       {filteredJobs.length > 0 ? (
         <JobsGrid>
           {filteredJobs.map((job) => (
-            <JobCard key={job.id} job={job} />
+            <JobCard key={job.id} job={job} isNew={job.id === newJobId} />
           ))}
         </JobsGrid>
       ) : (

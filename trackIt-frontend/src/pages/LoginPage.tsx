@@ -1,7 +1,13 @@
 import { useState } from "react";
 import type { FC } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock, FaUserSecret } from "react-icons/fa";
+import {
+  FaEnvelope,
+  FaLock,
+  FaUserSecret,
+  FaEye,
+  FaEyeSlash,
+} from "react-icons/fa";
 import styled from "styled-components";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -262,10 +268,23 @@ const Footer = styled.div`
   }
 `;
 
+const PasswordInputWrapper = styled(InputWrapper)`
+  svg.toggle-password {
+    left: auto;
+    right: 1rem;
+    cursor: pointer;
+    opacity: 0.6;
+    &:hover {
+      opacity: 1;
+    }
+  }
+`;
+
 const LoginPage: FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { showToast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -331,23 +350,36 @@ const LoginPage: FC = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                autoComplete="username"
               />
             </InputWrapper>
           </FormGroup>
 
           <FormGroup>
             <label>Password</label>
-            <InputWrapper>
+            <PasswordInputWrapper>
               <FaLock />
               <Input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
                 required
+                autoComplete="current-password"
               />
-            </InputWrapper>
+              {showPassword ? (
+                <FaEyeSlash
+                  className="toggle-password"
+                  onClick={() => setShowPassword(false)}
+                />
+              ) : (
+                <FaEye
+                  className="toggle-password"
+                  onClick={() => setShowPassword(true)}
+                />
+              )}
+            </PasswordInputWrapper>
           </FormGroup>
 
           <ForgotPassword>

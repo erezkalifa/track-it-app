@@ -1,6 +1,6 @@
 const theme = {
   colors: {
-    // צבעי רקע - גרדיאנט סגול-ורוד עדין
+    // צבעי רקע - גרדיאנט סגול-ורוד
     backgroundStart: "#a5b4fc", // סגול בהיר
     backgroundEnd: "#f0abfc", // ורוד בהיר
     background: "#ffffff",
@@ -18,7 +18,7 @@ const theme = {
     error: "#ef4444", // Adding error color
     success: "#22c55e", // ירוק
     info: "#3b82f6", // כחול
-    border: "#e2e8f0",
+    border: "#e2e8f0", // גבול בהיר
 
     // צבעי סטטוס
     status: {

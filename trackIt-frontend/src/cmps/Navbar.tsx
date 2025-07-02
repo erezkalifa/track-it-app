@@ -26,9 +26,6 @@ const StyledToolbar = styled(Toolbar)(() => ({
   "@media (min-width: 600px)": {
     padding: "0.75rem 0",
   },
-  minHeight: "64px",
-  display: "flex",
-  alignItems: "center",
 }));
 
 const LogoText = styled("div")`
@@ -40,22 +37,17 @@ const LogoText = styled("div")`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 2px 4px rgba(99, 102, 241, 0.1);
-  line-height: 1;
-  display: flex;
-  align-items: center;
 `;
 
 const LogoLink = styled(RouterLink)`
   text-decoration: none;
-  display: flex;
-  align-items: center;
+  padding: 0.25rem 0;
 `;
 
 const LogoSection = styled(Box)`
   display: flex;
   align-items: center;
   gap: 2.5rem;
-  height: 100%;
 `;
 
 const HowToUseButton = styled("button")`
@@ -71,7 +63,6 @@ const HowToUseButton = styled("button")`
   background: none;
   border: none;
   cursor: pointer;
-  height: 36px;
 
   &::after {
     content: "";
@@ -102,7 +93,7 @@ const NavLink = styled(RouterLink)`
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  height: 36px;
+  padding: 0.5rem 0;
 
   &:hover {
     color: #6366f1;
@@ -114,7 +105,6 @@ const NavButtonsContainer = styled(Box)(() => ({
   alignItems: "center",
   gap: "0.5rem",
   marginLeft: "auto",
-  height: "100%",
 }));
 
 const UserContainer = styled(Box)`
@@ -122,7 +112,7 @@ const UserContainer = styled(Box)`
   align-items: center;
   gap: 0.5rem;
   margin-left: 2rem;
-  height: 36px;
+  padding: 0.5rem 0;
 `;
 
 const UserGreeting = styled(Typography)`
@@ -131,12 +121,12 @@ const UserGreeting = styled(Typography)`
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 4px;
 `;
 
 const Username = styled("span")`
   font-weight: 500;
   color: #7c3aed;
+  margin: 0 1px;
 `;
 
 const LogoutButton = styled("span")`
@@ -147,8 +137,6 @@ const LogoutButton = styled("span")`
   margin-left: 0;
   font-size: 0.875rem;
   text-decoration: none;
-  display: flex;
-  align-items: center;
 
   &:hover {
     color: #8b5cf6;

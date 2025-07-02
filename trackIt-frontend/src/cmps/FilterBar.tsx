@@ -99,7 +99,7 @@ const buttonBaseStyles = `
   /* Styling */
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: none;
   color: #000000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   backdrop-filter: none;
@@ -111,8 +111,6 @@ const buttonBaseStyles = `
   
   &:hover {
     background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
     transform: translateY(-1px);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -134,7 +132,6 @@ const FilterChip = styled.button<{ $active?: boolean }>`
     $active &&
     `
     background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
     color: #000000;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -165,12 +162,10 @@ const ResetButton = styled.button`
 
   /* Specific Reset Button Styling */
   background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.12);
   padding-right: 1.5rem;
 
   &:hover {
     background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.2);
   }
 `;
 
@@ -346,21 +341,21 @@ const ActiveFilterTag = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 20px;
+  padding: 0.5rem 0;
   font-size: 0.875rem;
   color: ${({ theme }) => theme.colors.text};
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: none;
 
   svg {
     font-size: 0.75rem;
     opacity: 0.8;
     cursor: pointer;
     transition: all 0.2s ease;
+    color: ${({ theme }) => theme.colors.textLight};
 
     &:hover {
       opacity: 1;
+      color: ${({ theme }) => theme.colors.error};
     }
   }
 `;
@@ -368,6 +363,18 @@ const ActiveFilterTag = styled.div`
 const FilterLabel = styled.span`
   color: ${({ theme }) => theme.colors.textLight};
   font-size: 0.8125rem;
+`;
+
+const SelectedFilterValue = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.text};
+
+  span {
+    font-weight: 500;
+  }
 `;
 
 interface FilterBarProps {
@@ -559,22 +566,28 @@ export const FilterBar = ({
         {filters.company && (
           <ActiveFilterTag>
             <FilterLabel>Company:</FilterLabel>
-            {filters.company}
-            <FaTimes onClick={() => handleFilterSelect("company", "")} />
+            <SelectedFilterValue>
+              <span>{filters.company}</span>
+              <FaTimes onClick={() => handleFilterSelect("company", "")} />
+            </SelectedFilterValue>
           </ActiveFilterTag>
         )}
         {filters.position && (
           <ActiveFilterTag>
             <FilterLabel>Position:</FilterLabel>
-            {filters.position}
-            <FaTimes onClick={() => handleFilterSelect("position", "")} />
+            <SelectedFilterValue>
+              <span>{filters.position}</span>
+              <FaTimes onClick={() => handleFilterSelect("position", "")} />
+            </SelectedFilterValue>
           </ActiveFilterTag>
         )}
         {filters.status && (
           <ActiveFilterTag>
             <FilterLabel>Status:</FilterLabel>
-            {filters.status}
-            <FaTimes onClick={() => handleFilterSelect("status", "")} />
+            <SelectedFilterValue>
+              <span>{filters.status}</span>
+              <FaTimes onClick={() => handleFilterSelect("status", "")} />
+            </SelectedFilterValue>
           </ActiveFilterTag>
         )}
       </ActiveFiltersContainer>

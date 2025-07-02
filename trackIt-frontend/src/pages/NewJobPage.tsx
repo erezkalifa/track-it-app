@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { JobStatus } from "../types/types";
 import { api } from "../api/config";
+import { useJobs } from "../context/JobContext";
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -99,8 +100,11 @@ const Select = styled.select`
   }
 
   option {
-    background: #1a1a1a;
-    color: ${({ theme }) => theme.colors.text};
+    background: white;
+    color: #1a1a1a;
+    padding: 12px;
+    font-size: 0.9375rem;
+    line-height: 1.5;
   }
 `;
 
@@ -219,8 +223,46 @@ const DateInput = styled.input`
   }
 `;
 
+const SelectedFileContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+`;
+
+const FileName = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 0.9375rem;
+`;
+
+const RemoveButton = styled.button`
+  background: none;
+  border: none;
+  color: ${({ theme }) => theme.colors.danger};
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  svg {
+    font-size: 1rem;
+  }
+`;
+
 const NewJobPage: React.FC = () => {
   const navigate = useNavigate();
+  const { jobs, setJobs } = useJobs();
   const [formData, setFormData] = useState({
     company: "",
     position: "",
@@ -266,27 +308,15 @@ const NewJobPage: React.FC = () => {
         ...(formData.applied_date && { applied_date: formData.applied_date }),
       };
 
-      // Log the complete job data before sending
-      console.log("Complete job data to be sent:", {
-        company: jobData.company,
-        position: jobData.position,
-        status: jobData.status,
-        notes: jobData.notes,
-        applied_date: jobData.applied_date,
-        resume: resume ? resume.name : "No resume attached",
-      });
-
       // Append each field individually to FormData
       Object.entries(jobData).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
           formDataToSend.append(key, value.toString());
-          console.log(`Adding to FormData: ${key} = ${value}`);
         }
       });
 
       if (resume) {
         formDataToSend.append("resume", resume);
-        console.log("Adding resume file:", resume.name);
       }
 
       const { data } = await api.post("/api/jobs", formDataToSend, {
@@ -295,8 +325,11 @@ const NewJobPage: React.FC = () => {
         },
       });
 
-      console.log("Server response:", data);
-      navigate(`/jobs/${data.id}`);
+      // Update jobs context with the new job
+      setJobs([...jobs, data]);
+
+      // Navigate to jobs list with the new job ID
+      navigate("/jobs", { state: { newJobId: data.id } });
     } catch (error: any) {
       console.error("Error creating job:", error.response?.data || error);
       let errorMessage = "Failed to create job. Please try again.";
@@ -315,6 +348,15 @@ const NewJobPage: React.FC = () => {
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setResume(null);
+    // Reset the file input
+    const fileInput = document.getElementById("resume") as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
     }
   };
 
@@ -422,9 +464,13 @@ const NewJobPage: React.FC = () => {
         />
 
         {resume && (
-          <div>
-            <p>Selected file: {resume.name}</p>
-          </div>
+          <SelectedFileContainer>
+            <FileName>{resume.name}</FileName>
+            <RemoveButton onClick={handleRemoveFile}>
+              <FaTrash />
+              Remove
+            </RemoveButton>
+          </SelectedFileContainer>
         )}
       </CardContainer>
     </PageContainer>
