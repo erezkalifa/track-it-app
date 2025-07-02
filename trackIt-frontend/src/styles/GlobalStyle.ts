@@ -15,7 +15,9 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    background: linear-gradient(135deg, #a5b4fc 0%, #f0abfc 100%);
+    background: linear-gradient(135deg, ${({ theme }) =>
+      theme.colors.backgroundStart} 0%, ${({ theme }) =>
+  theme.colors.backgroundEnd} 100%);
     color: ${({ theme }) => theme.colors.text};
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
                  "Helvetica Neue", Arial, sans-serif;
@@ -34,8 +36,8 @@ export const GlobalStyle = createGlobalStyle`
       linear-gradient(
         45deg,
         transparent 45%,
-        rgba(255, 255, 255, 0.05) 45%,
-        rgba(255, 255, 255, 0.05) 55%,
+        rgba(99, 102, 241, 0.03) 45%,
+        rgba(99, 102, 241, 0.03) 55%,
         transparent 55%
       );
     background-size: 24px 24px;

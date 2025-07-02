@@ -1,8 +1,9 @@
-export const theme = {
+const theme = {
   colors: {
     // צבעי רקע - גרדיאנט סגול-ורוד עדין
     backgroundStart: "#a5b4fc", // סגול בהיר
     backgroundEnd: "#f0abfc", // ורוד בהיר
+    background: "#ffffff",
 
     // צבעי טקסט
     text: "#334155", // אפור כהה
@@ -10,7 +11,14 @@ export const theme = {
 
     // צבעי מערכת
     primary: "#6366f1", // אינדיגו
+    primaryDark: "#4f46e5",
+    secondary: "#64748b",
+    secondaryDark: "#475569",
     danger: "#ef4444", // אדום
+    error: "#ef4444", // Adding error color
+    success: "#22c55e", // ירוק
+    info: "#3b82f6", // כחול
+    border: "#e2e8f0",
 
     // צבעי סטטוס
     status: {
@@ -20,6 +28,7 @@ export const theme = {
       offer: "#22c55e", // ירוק
       rejected: "#ef4444", // אדום
       withdrawn: "#94a3b8", // אפור
+      pending: "#f59e0b", // כתום
     },
   },
 
@@ -39,3 +48,5 @@ export const theme = {
     )`,
   },
 } as const;
+
+export default theme;

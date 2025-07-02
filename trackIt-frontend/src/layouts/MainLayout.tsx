@@ -4,7 +4,11 @@ import Navbar from "../cmps/Navbar";
 
 const LayoutContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #a5b4fc 0%, #f0abfc 100%);
+  background: linear-gradient(
+    135deg,
+    ${({ theme }) => theme.colors.backgroundStart} 0%,
+    ${({ theme }) => theme.colors.backgroundEnd} 100%
+  );
   display: flex;
   flex-direction: column;
 `;

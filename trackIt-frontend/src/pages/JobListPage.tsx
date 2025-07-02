@@ -4,6 +4,7 @@ import { JobCard } from "../cmps/JobCard";
 import { FilterBar } from "../cmps/FilterBar";
 import { type Job, JobStatus } from "../types/types";
 import { useNavigate } from "react-router-dom";
+import { useJobs } from "../context/JobContext";
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -83,30 +84,10 @@ const AddJobButton = styled.button`
   }
 `;
 
-// Mock data - replace with actual data from your API
-const mockJobs: Job[] = [
-  {
-    id: "1",
-    company: "Google",
-    position: "Frontend Developer",
-    status: JobStatus.APPLIED,
-    appliedDate: "2024-03-20",
-    resumeVersions: 2,
-  },
-  {
-    id: "2",
-    company: "Microsoft",
-    position: "Full Stack Developer",
-    status: JobStatus.INTERVIEW,
-    appliedDate: "2024-03-18",
-    resumeVersions: 1,
-  },
-  // Add more mock jobs as needed
-];
-
 export const JobListPage = () => {
-  const [jobs, setJobs] = useState<Job[]>(mockJobs);
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>(mockJobs);
+  const { jobs, loading: isLoading } = useJobs();
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     company: "",
     position: "",
@@ -150,6 +131,22 @@ export const JobListPage = () => {
   const handleAddJob = () => {
     navigate("/jobs/new");
   };
+
+  if (isLoading) {
+    return (
+      <PageContainer>
+        <div>Loading jobs...</div>
+      </PageContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageContainer>
+        <div>{error}</div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>

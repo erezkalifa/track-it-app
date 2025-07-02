@@ -20,12 +20,11 @@ const Card = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 
   /* Animation */
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.2s ease;
 
   /* Hover State */
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.04);
   }
 `;
 
@@ -61,9 +60,9 @@ const StatusBadge = styled.span<{ $status: string }>`
   /* Status-specific styling */
   ${({ $status }) => {
     switch ($status) {
-      case "draft":
+      case "pending":
         return `
-          background-color: rgba(165, 180, 252, 0.8); /* #a5b4fc with 80% opacity */
+          background-color: rgba(165, 180, 252, 0.8);
           color: #4338ca;
         `;
       case "applied":
@@ -71,12 +70,12 @@ const StatusBadge = styled.span<{ $status: string }>`
           background-color: #6366f1;
           color: white;
         `;
-      case "interview":
+      case "interviewing":
         return `
           background-color: #fbbf24;
           color: #1f2937;
         `;
-      case "offer":
+      case "accepted":
         return `
           background-color: #34d399;
           color: white;
@@ -84,11 +83,6 @@ const StatusBadge = styled.span<{ $status: string }>`
       case "rejected":
         return `
           background-color: #ef4444;
-          color: white;
-        `;
-      case "withdrawn":
-        return `
-          background-color: #9ca3af;
           color: white;
         `;
       default:
@@ -118,42 +112,54 @@ const DateInfo = styled.small`
   color: ${({ theme }) => theme.colors.textLight};
 `;
 
-const ButtonGroup = styled.div`
+const Footer = styled.div`
   /* Layout */
   display: flex;
-  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 2rem;
 `;
 
 const ActionButton = styled.button`
   /* Layout */
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 50px;
+  width: 100%;
+  height: 2.25rem;
+  padding: 0 1.25rem;
 
   /* Typography */
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
 
   /* Styling */
-  background: rgba(99, 102, 241, 0.1);
-  color: #4338ca;
+  background: rgba(255, 255, 255, 0.12);
+  color: ${({ theme }) => theme.colors.text};
   border: none;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 1px 2px rgba(0, 0, 0, 0.05);
   cursor: pointer;
+  transition: all 0.2s ease;
 
-  /* Animation */
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Icon styling */
+  svg {
+    font-size: 0.875rem;
+    color: ${({ theme }) => theme.colors.textLight};
+  }
 
   /* Hover State */
   &:hover {
-    background: rgba(99, 102, 241, 0.15);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.16);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25),
+      0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
-  /* Icon sizing */
-  svg {
-    font-size: 1rem;
+  /* Active State */
+  &:active {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
   }
 `;
 
@@ -163,38 +169,40 @@ const VersionInfo = styled.small`
   color: ${({ theme }) => theme.colors.textLight};
 `;
 
-const Footer = styled.div`
-  /* Layout */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+const Notes = styled.p`
+  /* Typography */
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.textLight};
+  margin: 1rem 0;
 
-  /* Spacing */
-  margin-top: 1.5rem;
+  /* Truncate long text */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const DateGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
 `;
 
 interface JobCardProps {
   job: Job;
-  onView?: (id: string) => void;
-  onInterview?: (id: string) => void;
+  onView?: (id: number) => void;
 }
 
-export const JobCard = ({ job, onView, onInterview }: JobCardProps) => {
+export const JobCard = ({ job, onView }: JobCardProps) => {
   const navigate = useNavigate();
 
   const handleView = (e: React.MouseEvent) => {
-    e.stopPropagation();
     if (onView) {
       onView(job.id);
     } else {
       navigate(`/jobs/${job.id}`);
-    }
-  };
-
-  const handleInterview = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onInterview) {
-      onInterview(job.id);
     }
   };
 
@@ -205,24 +213,28 @@ export const JobCard = ({ job, onView, onInterview }: JobCardProps) => {
 
       <InfoRow>
         <StatusBadge $status={job.status}>{job.status}</StatusBadge>
-        <DateInfo>
-          <FaCalendarAlt />
-          {job.appliedDate || "Not applied"}
-        </DateInfo>
       </InfoRow>
 
+      {job.notes && <Notes>{job.notes}</Notes>}
+
+      <DateGroup>
+        <DateInfo>
+          <FaCalendarAlt />
+          Created: {new Date(job.created_at).toLocaleDateString()}
+        </DateInfo>
+        {job.updated_at && (
+          <DateInfo>
+            <FaCalendarAlt />
+            Last Updated: {new Date(job.updated_at).toLocaleDateString()}
+          </DateInfo>
+        )}
+      </DateGroup>
+
       <Footer>
-        <ButtonGroup>
-          <ActionButton onClick={handleView}>
-            <FaEye />
-            View
-          </ActionButton>
-          <ActionButton onClick={handleInterview}>
-            <FaTasks />
-            Interview
-          </ActionButton>
-        </ButtonGroup>
-        <VersionInfo>{job.resumeVersions} versions</VersionInfo>
+        <ActionButton onClick={handleView}>
+          <FaEye />
+          View Details
+        </ActionButton>
       </Footer>
     </Card>
   );

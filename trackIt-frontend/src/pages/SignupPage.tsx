@@ -1,7 +1,8 @@
-import type { FC } from "react";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
-import { FaUser, FaEnvelope, FaLock, FaBriefcase } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
+import { api } from "../api/config";
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -41,9 +42,13 @@ const CardHeader = styled.div`
   }
 `;
 
-const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
 
+const FormGroup = styled.div`
   label {
     display: block;
     font-size: 0.9375rem;
@@ -102,7 +107,7 @@ const Input = styled.input`
   }
 `;
 
-const SignupButton = styled.button`
+const SubmitButton = styled.button`
   width: 100%;
   padding: 1rem;
   background: ${({ theme }) => theme.colors.primary};
@@ -150,6 +155,23 @@ const SignupButton = styled.button`
   &:active {
     transform: scale(0.98) translateZ(0);
   }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  color: ${({ theme }) => theme.colors.error};
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: ${({ theme }) => theme.colors.error}15;
+  border-radius: 8px;
 `;
 
 const Footer = styled.div`
@@ -170,7 +192,100 @@ const Footer = styled.div`
   }
 `;
 
-const SignupPage: FC = () => {
+const SignupPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setError("");
+  };
+
+  const validateForm = () => {
+    if (
+      !formData.email ||
+      !formData.username ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      setError("All fields are required");
+      return false;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return false;
+    }
+
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return false;
+    }
+
+    if (formData.username.length < 3 || formData.username.length > 50) {
+      setError("Username must be between 3 and 50 characters");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Please enter a valid email address");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submission started");
+
+    if (!validateForm()) {
+      console.log("Form validation failed");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      console.log("Sending request to backend:", {
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+      });
+
+      const response = await api.post("/api/auth/signup", {
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+      });
+
+      console.log("Response received:", response);
+
+      if (response.status === 200 || response.status === 201) {
+        // Redirect to login page after successful signup
+        navigate("/login");
+      }
+    } catch (err: any) {
+      console.error("Signup error:", err);
+      setError(err.response?.data?.detail || "An error occurred during signup");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <PageContainer>
       <SignupCard>
@@ -179,43 +294,77 @@ const SignupPage: FC = () => {
           <p>Start tracking your job applications today</p>
         </CardHeader>
 
-        <form>
+        <Form onSubmit={handleSubmit}>
           <FormGroup>
-            <label>Full Name</label>
-            <InputWrapper>
-              <FaUser />
-              <Input type="text" placeholder="Enter your full name" />
-            </InputWrapper>
-          </FormGroup>
-
-          <FormGroup>
-            <label>Email Address</label>
+            <label htmlFor="email">Email Address</label>
             <InputWrapper>
               <FaEnvelope />
-              <Input type="email" placeholder="Enter your email" />
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                autoComplete="email"
+              />
             </InputWrapper>
           </FormGroup>
 
           <FormGroup>
-            <label>Password</label>
+            <label htmlFor="username">Username</label>
             <InputWrapper>
-              <FaLock />
-              <Input type="password" placeholder="Choose a password" />
+              <FaUser />
+              <Input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="Choose a username"
+                autoComplete="username"
+              />
             </InputWrapper>
           </FormGroup>
 
           <FormGroup>
-            <label>Confirm Password</label>
+            <label htmlFor="password">Password</label>
             <InputWrapper>
               <FaLock />
-              <Input type="password" placeholder="Confirm your password" />
+              <Input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Create a password"
+                autoComplete="new-password"
+              />
             </InputWrapper>
           </FormGroup>
 
-          <SignupButton type="submit">
-            <span>Create Account</span>
-          </SignupButton>
-        </form>
+          <FormGroup>
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <InputWrapper>
+              <FaLock />
+              <Input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm your password"
+                autoComplete="new-password"
+              />
+            </InputWrapper>
+          </FormGroup>
+
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+
+          <SubmitButton type="submit" disabled={isLoading}>
+            <span>{isLoading ? "Creating Account..." : "Create Account"}</span>
+          </SubmitButton>
+        </Form>
 
         <Footer>
           Already have an account?

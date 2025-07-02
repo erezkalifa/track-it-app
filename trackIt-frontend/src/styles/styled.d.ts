@@ -5,10 +5,18 @@ declare module "styled-components" {
     colors: {
       backgroundStart: string;
       backgroundEnd: string;
+      background: string;
       text: string;
       textLight: string;
       primary: string;
+      primaryDark: string;
+      secondary: string;
+      secondaryDark: string;
       danger: string;
+      error: string;
+      success: string;
+      info: string;
+      border: string;
       status: {
         draft: string;
         applied: string;
@@ -16,6 +24,7 @@ declare module "styled-components" {
         offer: string;
         rejected: string;
         withdrawn: string;
+        pending: string;
       };
     };
     gradients: {

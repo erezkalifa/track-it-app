@@ -1,30 +1,38 @@
 export enum JobStatus {
-  DRAFT = "draft",
   APPLIED = "applied",
-  INTERVIEW = "interview",
-  OFFER = "offer",
+  INTERVIEWING = "interviewing",
   REJECTED = "rejected",
-  WITHDRAWN = "withdrawn",
+  ACCEPTED = "accepted",
+  PENDING = "pending",
 }
 
 export interface User {
-  id: string;
+  id: number;
   email: string;
-  name: string;
+  username: string;
+  created_at: string;
+  is_guest?: boolean;
+  updated_at?: string;
 }
 
 export interface Job {
-  id: string;
+  id: number;
   company: string;
   position: string;
   status: JobStatus;
-  appliedDate?: string;
-  resumeVersions: number;
+  resume_path?: string;
+  notes?: string;
+  applied_date?: string;
+  created_at: string;
+  updated_at?: string;
+  resumes: ResumeVersion[];
 }
 
 export interface ResumeVersion {
   id: number;
-  version: number;
   filename: string;
+  file_path: string;
+  version: number;
   upload_date: string;
+  notes?: string;
 }
