@@ -1,0 +1,24 @@
+{
+  "services": [
+    {
+      "name": "backend",
+      "rootDirectory": "trackIt-backend",
+      "build": {
+        "builder": "python",
+        "startCommand": "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+      }
+    },
+    {
+      "name": "frontend",
+      "rootDirectory": "trackIt-frontend",
+      "build": {
+        "builder": "nixpacks",
+        "buildCommand": "npm run build",
+        "startCommand": "npm run preview"
+      },
+      "variables": {
+        "NPM_CONFIG_PRODUCTION": "false"
+      }
+    }
+  ]
+}
