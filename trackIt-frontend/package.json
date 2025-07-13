@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:prod": "tsc && vite build --mode production",
+    "build:prod": "tsc && vite build --mode production && cp server.cjs dist/",
     "postbuild": "ls -R > build-map.txt",
     "preview": "vite preview",
-    "start": "npx serve -s dist",
+    "start": "node dist/server.cjs",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "engines": {
