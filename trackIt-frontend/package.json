@@ -9,9 +9,15 @@
   "npmConfig": {
     "optional": false
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "config": {
+    "npm_config_optional": "false"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build --mode production",
+    "build": "tsc && VITE_USE_ESBUILD=true vite build --mode production",
     "build:prod": "tsc && VITE_USE_ESBUILD=true vite build --mode production",
     "preview": "vite preview --host 0.0.0.0 --port $PORT",
     "start": "vite preview --host 0.0.0.0 --port $PORT",

@@ -28,5 +28,11 @@ export default defineConfig({
         manualChunks: undefined,
       },
     },
+    commonjsOptions: {
+      include: [],
+    },
+  },
+  optimizeDeps: {
+    exclude: ["@rollup/rollup-linux-x64-gnu"],
   },
 });
