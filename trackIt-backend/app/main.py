@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import auth, jobs
 from app.db.init_db import init_db
 from app.config import settings
+from app.db.session import engine
+from app.db.base import Base
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -29,14 +31,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-try:
-    # Initialize database
-    logger.info("Initializing database...")
-    init_db()
-    logger.info("Database initialized successfully")
-except Exception as e:
-    logger.error(f"Failed to initialize database: {str(e)}")
-    sys.exit(1)
+@app.on_event("startup")
+def startup_event():
+    try:
+        # Initialize database
+        logger.info("Initializing database...")
+        init_db()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {str(e)}")
+        sys.exit(1)
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    try:
+        logger.info("Closing database connections...")
+        await engine.dispose()
+        logger.info("Database connections closed successfully")
+    except Exception as e:
+        logger.error(f"Error closing database connections: {str(e)}")
 
 # Include routers
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
@@ -44,9 +57,17 @@ app.include_router(jobs.router, prefix="/api/jobs", tags=["jobs"])
 
 @app.get("/")
 async def root():
-    return {
-        "message": "Welcome to TrackIt API",
-        "version": "1.0.0",
-        "environment": settings.ENVIRONMENT,
-        "status": "healthy"
-    } 
+    try:
+        return {
+            "message": "Welcome to TrackIt API",
+            "version": "1.0.0",
+            "environment": settings.ENVIRONMENT,
+            "status": "healthy"
+        }
+    except Exception as e:
+        logger.error(f"Error in root endpoint: {str(e)}")
+        return {
+            "message": "Error in TrackIt API",
+            "error": str(e),
+            "status": "unhealthy"
+        } 
