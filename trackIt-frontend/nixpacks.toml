@@ -1,14 +1,5 @@
 [phases.setup]
-nixPkgs = ['nodejs', 'npm']
-
-[phases.install]
-cmds = ['npm install']
-
-[phases.build]
-cmds = ['npm run build']
+nixPkgs = ['nodejs']
 
 [start]
-cmd = 'npm run preview'
-
-[variables]
-NPM_CONFIG_PRODUCTION = "false" 
+cmd = 'npm run preview' 
