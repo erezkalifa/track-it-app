@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import auth, jobs
 from app.db.init_db import init_db
-import uvicorn
+from app.config import settings
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -18,6 +18,7 @@ origins = [
     "http://localhost:5173",  # React dev server
     "http://localhost:8000",  # FastAPI server
     "https://track-it-app-production.up.railway.app",  # Production frontend
+    "https://track-it-app-backend-production.up.railway.app",  # Production backend
 ]
 
 app.add_middleware(
@@ -43,18 +44,9 @@ app.include_router(jobs.router, prefix="/api/jobs", tags=["jobs"])
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to TrackIt API"}
-
-def run_server():
-    """Entry point for the server script"""
-    port = int(os.environ.get("PORT", 8000))
-    logger.info(f"Starting server on port {port}")
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=port,
-        reload=True  # Enable reload in development
-    )
-
-if __name__ == "__main__":
-    run_server() 
+    return {
+        "message": "Welcome to TrackIt API",
+        "version": "1.0.0",
+        "environment": settings.ENVIRONMENT,
+        "status": "healthy"
+    } 
