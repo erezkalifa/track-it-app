@@ -1,14 +1,11 @@
 [phases.setup]
-nixPkgs = ['nodejs', 'npm']
+nixPkgs = ['nodejs_20', 'npm']
 
 [phases.install]
-cmds = ['npm install']
+cmds = ['npm ci']
 
 [phases.build]
 cmds = ['npm run build:prod']
 
 [start]
-cmd = 'npm run start'
-
-[variables]
-NPM_CONFIG_PRODUCTION = "false" 
+cmd = 'npm start' 
