@@ -1,16 +1,5 @@
 [phases.setup]
 nixPkgs = ['nodejs_20']
 
-[phases.install]
-cmds = ['npm ci']
-
-[phases.build]
-cmds = ['npm run build:prod']
-
 [start]
-cmd = 'node dist/server.cjs'
-
-[deploy]
-startCommand = 'node dist/server.cjs'
-restartPolicyType = 'ON_FAILURE'
-restartPolicyMaxRetries = 10 
+cmd = 'node dist/server.cjs' 

@@ -5,7 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build --mode production && cp server.cjs dist/",
     "build:prod": "tsc && vite build --mode production && cp server.cjs dist/",
     "postbuild": "ls -R > build-map.txt",
     "preview": "vite preview",
