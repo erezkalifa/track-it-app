@@ -20,7 +20,9 @@ origins = [
     "http://localhost:5173",  # React dev server
     "http://localhost:8000",  # FastAPI server
     "https://track-it-app-production.up.railway.app",  # Production frontend
+    "http://track-it-app-production.up.railway.app",   # Production frontend (HTTP)
     "https://track-it-app-backend-production.up.railway.app",  # Production backend
+    "http://track-it-app-backend-production.up.railway.app",   # Production backend (HTTP)
 ]
 
 app.add_middleware(
