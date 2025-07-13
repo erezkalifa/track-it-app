@@ -2,8 +2,18 @@ import esbuild from "esbuild";
 import fs from "fs";
 import path from "path";
 
+// Create dist directory if it doesn't exist
+if (!fs.existsSync("dist")) {
+  fs.mkdirSync("dist", { recursive: true });
+}
+
 // Copy HTML file to dist
-fs.copyFileSync("index.html", "dist/index.html");
+if (fs.existsSync("index.html")) {
+  fs.copyFileSync("index.html", "dist/index.html");
+} else {
+  console.error("index.html not found in current directory");
+  process.exit(1);
+}
 
 // Build with esbuild
 esbuild
