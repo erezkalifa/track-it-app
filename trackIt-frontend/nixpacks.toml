@@ -8,4 +8,9 @@ cmds = ['npm ci']
 cmds = ['npm run build:prod']
 
 [start]
-cmd = 'npm start' 
+cmd = 'node dist/server.cjs'
+
+[deploy]
+startCommand = 'node dist/server.cjs'
+restartPolicyType = 'ON_FAILURE'
+restartPolicyMaxRetries = 10 

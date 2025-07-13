@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,15 +12,29 @@ console.log(`Port: ${PORT}`);
 console.log(`Current directory: ${process.cwd()}`);
 console.log(`__dirname: ${__dirname}`);
 
-// Determine the dist directory path
-const distPath = path.resolve(process.cwd(), "dist");
-console.log(`Looking for dist at: ${distPath}`);
+// Try different possible dist locations
+const possibleDistPaths = [
+  path.join(process.cwd(), "dist"),
+  path.join(__dirname, "dist"),
+  path.join(process.cwd(), "../dist"),
+  path.join(__dirname, "../dist"),
+  "/app/dist",
+];
 
-// Check if dist directory exists
-const fs = require("fs");
-if (!fs.existsSync(distPath)) {
-  console.error(`Error: dist directory not found at ${distPath}`);
-  console.log("Contents of current directory:");
+let distPath;
+for (const path of possibleDistPaths) {
+  console.log(`Checking for dist at: ${path}`);
+  if (fs.existsSync(path)) {
+    distPath = path;
+    console.log(`Found dist directory at: ${distPath}`);
+    break;
+  }
+}
+
+if (!distPath) {
+  console.error("Error: Could not find dist directory. Checked paths:");
+  possibleDistPaths.forEach((p) => console.log(` - ${p}`));
+  console.log("\nCurrent directory contents:");
   console.log(fs.readdirSync(process.cwd()));
   process.exit(1);
 }
@@ -30,11 +45,15 @@ app.use(express.static(distPath));
 // Handle client-side routing by serving index.html for all routes
 app.get("*", (req, res) => {
   const indexPath = path.join(distPath, "index.html");
-  console.log(`Serving index.html from: ${indexPath}`);
+  console.log(`Attempting to serve index.html from: ${indexPath}`);
+
   if (!fs.existsSync(indexPath)) {
     console.error(`Error: index.html not found at ${indexPath}`);
+    console.log("Contents of dist directory:");
+    console.log(fs.readdirSync(distPath));
     return res.status(404).send("index.html not found");
   }
+
   res.sendFile(indexPath);
 });
 
