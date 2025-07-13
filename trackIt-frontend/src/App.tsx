@@ -1,3 +1,4 @@
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -18,13 +19,17 @@ import { useAuth } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 import { JobProvider } from "./context/JobContext";
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
+const ProtectedRoute = ({
   children,
-}) => {
+}: ProtectedRouteProps): JSX.Element | null => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return null; // או תציג spinner/loading indicator
+    return null;
   }
 
   if (!isAuthenticated) {
@@ -34,7 +39,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   return <>{children}</>;
 };
 
-function App() {
+const App = (): JSX.Element => {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
@@ -65,6 +70,6 @@ function App() {
       </ToastProvider>
     </ThemeProvider>
   );
-}
+};
 
 export default App;

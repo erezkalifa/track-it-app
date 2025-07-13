@@ -2,4 +2,4 @@
 nixPkgs = ['nodejs']
 
 [start]
-cmd = 'npm run preview' 
+cmd = 'npm run preview'

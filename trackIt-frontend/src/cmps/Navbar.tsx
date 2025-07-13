@@ -146,7 +146,7 @@ const LogoutButton = styled("span")`
   }
 `;
 
-const Navbar: React.FC = () => {
+const Navbar = (): JSX.Element => {
   const { isAuthenticated, logout, user, isGuest } = useAuth();
   const navigate = useNavigate();
   const [isHowToUseOpen, setIsHowToUseOpen] = useState(false);
