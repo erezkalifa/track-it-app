@@ -4,10 +4,11 @@ import uvicorn
 
 def run_server(env: str = "development"):
     os.environ["ENVIRONMENT"] = env
+    port = int(os.getenv("PORT", "8000"))
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
-        port=8000,
+        port=port,
         reload=env == "development"
     )
 
