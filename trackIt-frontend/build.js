@@ -2,9 +2,12 @@ import esbuild from "esbuild";
 import fs from "fs";
 import path from "path";
 
+console.log("Starting esbuild build process...");
+
 // Create dist directory if it doesn't exist
 if (!fs.existsSync("dist")) {
   fs.mkdirSync("dist", { recursive: true });
+  console.log("Created dist directory");
 }
 
 // Copy HTML file to dist
@@ -45,5 +48,17 @@ esbuild
       ".jsx": "jsx",
       ".js": "js",
     },
+    define: {
+      "process.env.VITE_API_URL": JSON.stringify(
+        process.env.VITE_API_URL || ""
+      ),
+      "process.env.VITE_ENV": JSON.stringify(process.env.VITE_ENV || ""),
+    },
   })
-  .catch(() => process.exit(1));
+  .then(() => {
+    console.log("Build completed successfully!");
+  })
+  .catch((error) => {
+    console.error("Build failed:", error);
+    process.exit(1);
+  });
