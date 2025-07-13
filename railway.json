@@ -5,7 +5,7 @@
     "dockerfilePath": "trackIt-backend/Dockerfile"
   },
   "deploy": {
-    "startCommand": "python trackIt-backend/run_server.py production",
+    "startCommand": "python run_server.py production",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
