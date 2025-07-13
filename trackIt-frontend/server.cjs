@@ -11,9 +11,18 @@ console.log(`Port: ${PORT}`);
 console.log(`Current directory: ${process.cwd()}`);
 console.log(`__dirname: ${__dirname}`);
 
-// Determine the dist directory path - when running from dist folder
-const distPath = path.resolve(__dirname, "./");
-console.log(`Dist path: ${distPath}`);
+// Determine the dist directory path
+const distPath = path.resolve(process.cwd(), "dist");
+console.log(`Looking for dist at: ${distPath}`);
+
+// Check if dist directory exists
+const fs = require("fs");
+if (!fs.existsSync(distPath)) {
+  console.error(`Error: dist directory not found at ${distPath}`);
+  console.log("Contents of current directory:");
+  console.log(fs.readdirSync(process.cwd()));
+  process.exit(1);
+}
 
 // Serve static files from the dist directory
 app.use(express.static(distPath));
@@ -22,6 +31,10 @@ app.use(express.static(distPath));
 app.get("*", (req, res) => {
   const indexPath = path.join(distPath, "index.html");
   console.log(`Serving index.html from: ${indexPath}`);
+  if (!fs.existsSync(indexPath)) {
+    console.error(`Error: index.html not found at ${indexPath}`);
+    return res.status(404).send("index.html not found");
+  }
   res.sendFile(indexPath);
 });
 

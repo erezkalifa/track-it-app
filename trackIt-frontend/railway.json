@@ -2,10 +2,10 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "RAILPACK",
-    "buildCommand": "npm run build:prod"
+    "buildCommand": "npm run build:prod && cp server.cjs /app/"
   },
   "deploy": {
-    "startCommand": "npx serve -s dist",
+    "startCommand": "node /app/server.cjs",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
