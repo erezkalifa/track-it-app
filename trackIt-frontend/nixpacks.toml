@@ -5,10 +5,10 @@ nixPkgs = ['nodejs', 'npm']
 cmds = ['npm install']
 
 [phases.build]
-cmds = ['npm run build']
+cmds = ['npm run build:prod']
 
 [start]
-cmd = 'npm run preview'
+cmd = 'npm run start'
 
 [variables]
 NPM_CONFIG_PRODUCTION = "false" 
