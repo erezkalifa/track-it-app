@@ -35,4 +35,10 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["@rollup/rollup-linux-x64-gnu"],
   },
+  esbuild: {
+    target: "es2020",
+    supported: {
+      "top-level-await": true,
+    },
+  },
 });
