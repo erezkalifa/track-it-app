@@ -7,8 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "build:prod": "tsc && vite build --mode production",
+    "postbuild": "ls -R > build-map.txt",
     "preview": "vite preview",
-    "start": "node server.cjs",
+    "start": "npx serve -s dist",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "engines": {
