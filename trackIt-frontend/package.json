@@ -9,9 +9,6 @@
   "npmConfig": {
     "optional": false
   },
-  "engines": {
-    "node": ">=20.0.0"
-  },
   "config": {
     "npm_config_optional": "false"
   },
