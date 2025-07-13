@@ -21,8 +21,12 @@ export default defineConfig({
   },
   build: {
     minify: "esbuild",
+    target: "es2020",
     rollupOptions: {
       external: ["@rollup/rollup-linux-x64-gnu"],
+      output: {
+        manualChunks: undefined,
+      },
     },
   },
 });
