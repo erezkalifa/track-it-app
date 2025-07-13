@@ -20,6 +20,7 @@ export default defineConfig({
     "process.env.VITE_ENV": JSON.stringify(process.env.VITE_ENV),
   },
   build: {
+    minify: "esbuild",
     rollupOptions: {
       external: ["@rollup/rollup-linux-x64-gnu"],
     },
