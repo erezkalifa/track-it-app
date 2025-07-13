@@ -25,8 +25,8 @@ logger.info(f"Database URL: {settings.DATABASE_URL.split('@')[-1]}")  # Log only
 origins = [
     "http://localhost:5173",  # React dev server
     "http://localhost:8000",  # FastAPI server
-    "https://track-it-app-production.up.railway.app",  # Production frontend
-    "http://track-it-app-production.up.railway.app",   # Production frontend (HTTP)
+    "https://track-it-app-frontend-production.up.railway.app",  # Production frontend
+    "http://track-it-app-frontend-production.up.railway.app",   # Production frontend (HTTP)
     "https://track-it-app-backend-production.up.railway.app",  # Production backend
     "http://track-it-app-backend-production.up.railway.app",   # Production backend (HTTP)
 ]
