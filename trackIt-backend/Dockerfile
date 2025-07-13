@@ -3,7 +3,7 @@ FROM python:3.11-slim
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PORT=8000
+ENV ENVIRONMENT=production
 
 # Set work directory
 WORKDIR /app
@@ -29,6 +29,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project
 COPY . .
+
+# Make the run_server.py script executable
+RUN chmod +x run_server.py
 
 # Command to run the application
 CMD ["python", "run_server.py", "production"] 
