@@ -8,12 +8,18 @@ from app.db.init_db import init_db
 from app.config import settings
 from app.db.session import engine
 from app.db.base import Base
+from sqlalchemy import text
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+# Log environment information
+logger.info(f"Environment: {settings.ENVIRONMENT}")
+logger.info(f"Debug mode: {settings.DEBUG}")
+logger.info(f"Database URL: {settings.DATABASE_URL.split('@')[-1]}")  # Log only host part for security
 
 # Configure CORS
 origins = [
@@ -25,6 +31,8 @@ origins = [
     "http://track-it-app-backend-production.up.railway.app",   # Production backend (HTTP)
 ]
 
+logger.info(f"Configured CORS origins: {origins}")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -34,12 +42,18 @@ app.add_middleware(
 )
 
 @app.on_event("startup")
-def startup_event():
+async def startup_event():
     try:
         # Initialize database
         logger.info("Initializing database...")
         init_db()
         logger.info("Database initialized successfully")
+        
+        # Test database connection
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+            logger.info("Database connection test successful")
+            
     except Exception as e:
         logger.error(f"Failed to initialize database: {str(e)}")
         sys.exit(1)
@@ -60,16 +74,21 @@ app.include_router(jobs.router, prefix="/api/jobs", tags=["jobs"])
 @app.get("/")
 async def root():
     try:
-        return {
-            "message": "Welcome to TrackIt API",
-            "version": "1.0.0",
-            "environment": settings.ENVIRONMENT,
-            "status": "healthy"
-        }
+        # Test database connection
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+            db_status = "healthy"
     except Exception as e:
-        logger.error(f"Error in root endpoint: {str(e)}")
-        return {
-            "message": "Error in TrackIt API",
-            "error": str(e),
-            "status": "unhealthy"
-        } 
+        logger.error(f"Database health check failed: {str(e)}")
+        db_status = "unhealthy"
+
+    response = {
+        "message": "Welcome to TrackIt API",
+        "version": "1.0.0",
+        "environment": settings.ENVIRONMENT,
+        "database_status": db_status,
+        "status": "healthy" if db_status == "healthy" else "unhealthy"
+    }
+    
+    logger.info(f"Health check response: {response}")
+    return response 
