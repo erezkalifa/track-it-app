@@ -19,4 +19,9 @@ export default defineConfig({
     "process.env.VITE_API_URL": JSON.stringify(process.env.VITE_API_URL),
     "process.env.VITE_ENV": JSON.stringify(process.env.VITE_ENV),
   },
+  build: {
+    rollupOptions: {
+      external: ["@rollup/rollup-linux-x64-gnu"],
+    },
+  },
 });
