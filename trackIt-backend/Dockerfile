@@ -16,19 +16,18 @@ RUN apt-get update \
         libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Create and activate virtual environment
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Upgrade pip and install dependencies
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+# Copy requirements first for better caching
+COPY requirements.txt .
 
 # Install Python dependencies
-COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project
 COPY . .
 
+# Expose port
+EXPOSE 8000
+
 # Command to run the application
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} 
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"] 
