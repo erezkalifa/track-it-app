@@ -39,8 +39,32 @@ if (!distPath) {
   process.exit(1);
 }
 
+// Configure MIME types for modern JavaScript
+app.use((req, res, next) => {
+  if (req.url.endsWith(".js")) {
+    res.setHeader("Content-Type", "application/javascript");
+  } else if (req.url.endsWith(".mjs")) {
+    res.setHeader("Content-Type", "application/javascript");
+  } else if (req.url.endsWith(".css")) {
+    res.setHeader("Content-Type", "text/css");
+  }
+  next();
+});
+
 // Serve static files from the dist directory
-app.use(express.static(distPath));
+app.use(
+  express.static(distPath, {
+    setHeaders: (res, path) => {
+      if (path.endsWith(".js")) {
+        res.setHeader("Content-Type", "application/javascript");
+      } else if (path.endsWith(".mjs")) {
+        res.setHeader("Content-Type", "application/javascript");
+      } else if (path.endsWith(".css")) {
+        res.setHeader("Content-Type", "text/css");
+      }
+    },
+  })
+);
 
 // Handle client-side routing by serving index.html for all routes
 app.get("*", (req, res) => {

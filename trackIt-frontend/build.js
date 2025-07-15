@@ -24,7 +24,7 @@ esbuild
     entryPoints: ["src/main.tsx"],
     bundle: true,
     outdir: "dist",
-    format: "esm",
+    format: "iife",
     minify: true,
     sourcemap: true,
     target: "es2020",
