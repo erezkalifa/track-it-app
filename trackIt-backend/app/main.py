@@ -24,6 +24,7 @@ logger.info(f"Database URL: {settings.DATABASE_URL.split('@')[-1]}")  # Log only
 # Configure CORS
 origins = [
     "http://localhost:5173",  # React dev server
+    "http://localhost:5174",  # Vite dev server
     "http://localhost:8000",  # FastAPI server
     "https://track-it-app-frontend-production.up.railway.app",  # Production frontend
     "http://track-it-app-frontend-production.up.railway.app",   # Production frontend (HTTP)
