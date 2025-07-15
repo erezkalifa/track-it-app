@@ -35,6 +35,7 @@ origins = [
 ]
 
 logger.info(f"Configured CORS origins: {origins}")
+logger.info("CORS updated for new production frontend URL")  # Trigger new deployment
 
 app.add_middleware(
     CORSMiddleware,
