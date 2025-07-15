@@ -810,10 +810,11 @@ const JobDetailPage: React.FC = () => {
       return;
     }
     if (!id) return;
-    window.open(
-      `http://localhost:8000/api/jobs/${id}/resume/${versionId}`,
-      "_blank"
-    );
+    const baseURL =
+      process.env.NODE_ENV === "production"
+        ? "https://track-it-app-production-bcae.up.railway.app"
+        : "http://localhost:8000";
+    window.open(`${baseURL}/api/jobs/${id}/resume/${versionId}`, "_blank");
   };
 
   const handleDownload = async (versionId: number) => {
@@ -822,8 +823,12 @@ const JobDetailPage: React.FC = () => {
       return;
     }
     if (!id) return;
+    const baseURL =
+      process.env.NODE_ENV === "production"
+        ? "https://track-it-app-production-bcae.up.railway.app"
+        : "http://localhost:8000";
     window.open(
-      `http://localhost:8000/api/jobs/${id}/resume/${versionId}/download`,
+      `${baseURL}/api/jobs/${id}/resume/${versionId}/download`,
       "_blank"
     );
   };
