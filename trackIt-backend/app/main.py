@@ -21,17 +21,9 @@ logger.info(f"Environment: {settings.ENVIRONMENT}")
 logger.info(f"Debug mode: {settings.DEBUG}")
 logger.info(f"Database URL: {settings.DATABASE_URL.split('@')[-1]}")  # Log only host part for security
 
-# Configure CORS
+# Configure CORS - Allow all origins for debugging
 origins = [
-    "http://localhost:5173",  # React dev server
-    "http://localhost:5174",  # Vite dev server
-    "http://localhost:8000",  # FastAPI server
-    "https://track-it-app-frontend-production.up.railway.app",  # Production frontend
-    "http://track-it-app-frontend-production.up.railway.app",   # Production frontend (HTTP)
-    "https://track-it-app-production.up.railway.app",  # New production frontend
-    "http://track-it-app-production.up.railway.app",   # New production frontend (HTTP)
-    "https://track-it-app-backend-production.up.railway.app",  # Production backend
-    "http://track-it-app-backend-production.up.railway.app",   # Production backend (HTTP)
+    "*"  # Allow all origins temporarily
 ]
 
 logger.info(f"Configured CORS origins: {origins}")
