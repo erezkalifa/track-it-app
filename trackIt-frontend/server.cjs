@@ -39,28 +39,48 @@ if (!distPath) {
   process.exit(1);
 }
 
-// Configure MIME types for modern JavaScript
-app.use((req, res, next) => {
-  if (req.url.endsWith(".js")) {
-    res.setHeader("Content-Type", "application/javascript");
-  } else if (req.url.endsWith(".mjs")) {
-    res.setHeader("Content-Type", "application/javascript");
-  } else if (req.url.endsWith(".css")) {
-    res.setHeader("Content-Type", "text/css");
-  }
-  next();
-});
-
-// Serve static files from the dist directory
+// Serve static files from the dist directory with proper MIME types
 app.use(
   express.static(distPath, {
-    setHeaders: (res, path) => {
-      if (path.endsWith(".js")) {
-        res.setHeader("Content-Type", "application/javascript");
-      } else if (path.endsWith(".mjs")) {
-        res.setHeader("Content-Type", "application/javascript");
-      } else if (path.endsWith(".css")) {
-        res.setHeader("Content-Type", "text/css");
+    setHeaders: (res, filePath) => {
+      const ext = path.extname(filePath).toLowerCase();
+
+      // Set proper MIME types for different file types
+      switch (ext) {
+        case ".js":
+          res.setHeader("Content-Type", "application/javascript");
+          break;
+        case ".mjs":
+          res.setHeader("Content-Type", "application/javascript");
+          break;
+        case ".css":
+          res.setHeader("Content-Type", "text/css");
+          break;
+        case ".html":
+          res.setHeader("Content-Type", "text/html");
+          break;
+        case ".json":
+          res.setHeader("Content-Type", "application/json");
+          break;
+        case ".svg":
+          res.setHeader("Content-Type", "image/svg+xml");
+          break;
+        case ".png":
+          res.setHeader("Content-Type", "image/png");
+          break;
+        case ".jpg":
+        case ".jpeg":
+          res.setHeader("Content-Type", "image/jpeg");
+          break;
+        case ".woff":
+          res.setHeader("Content-Type", "font/woff");
+          break;
+        case ".woff2":
+          res.setHeader("Content-Type", "font/woff2");
+          break;
+        case ".ttf":
+          res.setHeader("Content-Type", "font/ttf");
+          break;
       }
     },
   })
