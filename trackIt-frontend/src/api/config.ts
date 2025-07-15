@@ -2,9 +2,14 @@ import axios from "axios";
 
 // Get API URL from environment or use production URL as fallback
 const getApiUrl = () => {
-  // Try to get from import.meta.env (Vite)
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+  try {
+    // Try to get from import.meta.env (Vite) - wrap in try-catch
+    const envApiUrl = (import.meta as any)?.env?.VITE_API_URL;
+    if (envApiUrl) {
+      return envApiUrl;
+    }
+  } catch (error) {
+    console.log("Could not access import.meta.env, using fallback");
   }
 
   // Try to get from window.__ENV__ (if set by server)
@@ -14,8 +19,9 @@ const getApiUrl = () => {
 
   // Production fallback
   if (
+    typeof window !== "undefined" &&
     window.location.hostname ===
-    "track-it-app-frontend-production.up.railway.app"
+      "track-it-app-frontend-production.up.railway.app"
   ) {
     return "https://track-it-app-backend-production.up.railway.app";
   }
@@ -24,8 +30,21 @@ const getApiUrl = () => {
   return "http://localhost:8000";
 };
 
+const getEnv = () => {
+  try {
+    const env = (import.meta as any)?.env?.VITE_ENV;
+    if (env) {
+      return env;
+    }
+  } catch (error) {
+    console.log("Could not access import.meta.env for ENV, using fallback");
+  }
+
+  return "production";
+};
+
 const API_URL = getApiUrl();
-const ENV = import.meta.env.VITE_ENV || "development";
+const ENV = getEnv();
 
 console.log("API URL:", API_URL);
 console.log("Environment:", ENV);
