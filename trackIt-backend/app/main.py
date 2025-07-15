@@ -28,6 +28,8 @@ origins = [
     "http://localhost:8000",  # FastAPI server
     "https://track-it-app-frontend-production.up.railway.app",  # Production frontend
     "http://track-it-app-frontend-production.up.railway.app",   # Production frontend (HTTP)
+    "https://track-it-app-production.up.railway.app",  # New production frontend
+    "http://track-it-app-production.up.railway.app",   # New production frontend (HTTP)
     "https://track-it-app-backend-production.up.railway.app",  # Production backend
     "http://track-it-app-backend-production.up.railway.app",   # Production backend (HTTP)
 ]
