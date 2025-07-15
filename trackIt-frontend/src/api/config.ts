@@ -6,6 +6,7 @@ const API_URL =
     ? "https://track-it-app-production-bcae.up.railway.app"
     : "http://localhost:8000";
 
+console.log("Environment:", process.env.NODE_ENV);
 console.log("API URL:", API_URL);
 
 export const api = axios.create({
@@ -21,5 +22,6 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  console.log("Making request to:", config.url);
   return config;
 });
