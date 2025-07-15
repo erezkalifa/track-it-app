@@ -35,10 +35,13 @@ esbuild
       ".js": "js",
     },
     define: {
-      "process.env.VITE_API_URL": JSON.stringify(
-        process.env.VITE_API_URL || ""
+      "import.meta.env.VITE_API_URL": JSON.stringify(
+        process.env.VITE_API_URL ||
+          "https://track-it-app-backend-production.up.railway.app"
       ),
-      "process.env.VITE_ENV": JSON.stringify(process.env.VITE_ENV || ""),
+      "import.meta.env.VITE_ENV": JSON.stringify(
+        process.env.VITE_ENV || "production"
+      ),
     },
   })
   .then(() => {
