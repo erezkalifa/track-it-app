@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import type { Job } from "../types/types";
 import { JobStatus } from "../types/types";
 import { useAuth } from "./AuthContext";
-import { api } from "../api/config";
+import { api } from "../api/config.js";
 
 interface JobContextType {
   jobs: Job[];

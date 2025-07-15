@@ -12,7 +12,7 @@ import {
 import styled from "styled-components";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { api } from "../api/config";
+import { api } from "../api/config.js";
 
 const PageContainer = styled.div`
   min-height: 100vh;

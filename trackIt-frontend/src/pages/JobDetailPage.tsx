@@ -24,7 +24,7 @@ import {
 import { JobStatus } from "../types/types";
 import type { Job } from "../types/types";
 import type { ResumeVersion } from "../types/types";
-import { api } from "../api/config";
+import { api } from "../api/config.js";
 import { useJobs } from "../context/JobContext";
 import { useAuth } from "../context/AuthContext";
 

@@ -1,53 +1,12 @@
 import axios from "axios";
 
-// Get API URL from environment or use production URL as fallback
-const getApiUrl = () => {
-  try {
-    // Try to get from import.meta.env (Vite) - wrap in try-catch
-    const envApiUrl = (import.meta as any)?.env?.VITE_API_URL;
-    if (envApiUrl) {
-      return envApiUrl;
-    }
-  } catch (error) {
-    console.log("Could not access import.meta.env, using fallback");
-  }
-
-  // Try to get from window.__ENV__ (if set by server)
-  if (typeof window !== "undefined" && (window as any).__ENV__?.VITE_API_URL) {
-    return (window as any).__ENV__.VITE_API_URL;
-  }
-
-  // Production fallback
-  if (
-    typeof window !== "undefined" &&
-    window.location.hostname ===
-      "track-it-app-frontend-production.up.railway.app"
-  ) {
-    return "https://track-it-app-backend-production.up.railway.app";
-  }
-
-  // Development fallback
-  return "http://localhost:8000";
-};
-
-const getEnv = () => {
-  try {
-    const env = (import.meta as any)?.env?.VITE_ENV;
-    if (env) {
-      return env;
-    }
-  } catch (error) {
-    console.log("Could not access import.meta.env for ENV, using fallback");
-  }
-
-  return "production";
-};
-
-const API_URL = getApiUrl();
-const ENV = getEnv();
+// Simple API configuration
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://track-it-app-backend-production.up.railway.app"
+    : "http://localhost:8000";
 
 console.log("API URL:", API_URL);
-console.log("Environment:", ENV);
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -55,38 +14,6 @@ export const api = axios.create({
     "Content-Type": "application/json",
   },
 });
-
-// Add request interceptor for development logging
-if (ENV === "development") {
-  api.interceptors.request.use(
-    (config) => {
-      console.log("API Request:", {
-        method: config.method,
-        url: config.url,
-        data: config.data,
-      });
-      return config;
-    },
-    (error) => {
-      console.error("API Request Error:", error);
-      return Promise.reject(error);
-    }
-  );
-
-  api.interceptors.response.use(
-    (response) => {
-      console.log("API Response:", {
-        status: response.status,
-        data: response.data,
-      });
-      return response;
-    },
-    (error) => {
-      console.error("API Response Error:", error.response || error);
-      return Promise.reject(error);
-    }
-  );
-}
 
 // Add request interceptor for authentication
 api.interceptors.request.use((config) => {

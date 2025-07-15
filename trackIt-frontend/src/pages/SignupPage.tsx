@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
-import { api } from "../api/config";
+import { api } from "../api/config.js";
 
 const PageContainer = styled.div`
   min-height: 100vh;

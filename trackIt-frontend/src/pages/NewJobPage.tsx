@@ -11,7 +11,7 @@ import {
   FaFolder,
 } from "react-icons/fa";
 import { JobStatus } from "../types/types";
-import { api } from "../api/config";
+import { api } from "../api/config.js";
 import { useJobs } from "../context/JobContext";
 
 const PageContainer = styled.div`
