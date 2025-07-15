@@ -3,7 +3,7 @@ import axios from "axios";
 // Simple API configuration
 const API_URL =
   process.env.NODE_ENV === "production"
-    ? "https://track-it-app-backend-production.up.railway.app"
+    ? "https://track-it-app-production-bcae.up.railway.app"
     : "http://localhost:8000";
 
 console.log("API URL:", API_URL);
