@@ -17,8 +17,9 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
-    class Config:
-        env_file = env_file
+    model_config = {
+        "env_file": env_file
+    }
 
 @lru_cache()
 def get_settings() -> Settings:
