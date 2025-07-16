@@ -23,7 +23,10 @@ logger.info(f"Database URL: {settings.DATABASE_URL.split('@')[-1]}")  # Log only
 
 # Configure CORS - Allow all origins for debugging
 origins = [
-    "*"  # Allow all origins temporarily
+    "*",  # Allow all origins temporarily
+    "https://track-it-app-production.up.railway.app",
+    "http://localhost:3000",
+    "http://localhost:5173"
 ]
 
 logger.info(f"Configured CORS origins: {origins}")
