@@ -1,11 +1,12 @@
 import axios from "axios";
 
 // Simple API configuration
+// IMPORTANT: For Railway, do NOT use :8000 in the public URL!
 const isProduction =
   process.env.NODE_ENV === "production" ||
   window.location.hostname !== "localhost";
 const API_URL = isProduction
-  ? "https://track-it-app-production-bcae.up.railway.app"
+  ? "https://track-it-app-production-bcae.up.railway.app" // Railway backend public URL, no port
   : "http://localhost:8000";
 
 console.log("Environment:", process.env.NODE_ENV);
@@ -26,8 +27,6 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   console.log("Making request to:", config.url);
-  console.log("Full URL:", (config.baseURL || "") + (config.url || ""));
-  console.log("Headers:", config.headers);
   return config;
 });
 
