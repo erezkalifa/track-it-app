@@ -119,6 +119,33 @@ const MainContent = styled.div`
   }
 `;
 
+const MobileCloseButton = styled.button`
+  display: none;
+  width: 100%;
+  padding: 1rem;
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  &:hover {
+    background: #4f46e5;
+  }
+
+  /* Show only on mobile */
+  @media (max-width: 768px) {
+    display: flex;
+  }
+`;
+
 const Title = styled.h2`
   color: white;
   font-size: 2.25rem;
@@ -317,6 +344,25 @@ const CloseButton = styled.button`
   svg {
     font-size: 1.25rem;
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    top: 1rem;
+    right: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    min-width: 44px;
+    min-height: 44px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    svg {
+      font-size: 1.5rem;
+    }
+  }
 `;
 
 interface HowToUseModalProps {
@@ -441,6 +487,12 @@ export const HowToUseModal: React.FC<HowToUseModalProps> = ({
                 </StepContent>
               )
           )}
+
+          {/* Mobile Close Button */}
+          <MobileCloseButton onClick={onClose}>
+            <FaTimes />
+            Close
+          </MobileCloseButton>
         </MainContent>
       </ModalContent>
     </ModalOverlay>
