@@ -9,6 +9,7 @@ import {
   FaDownload,
   FaTrash,
   FaFolder,
+  FaTimes,
 } from "react-icons/fa";
 import { JobStatus } from "../types/types";
 import { api } from "../api/config.js";
@@ -19,6 +20,19 @@ const PageContainer = styled.div`
   display: grid;
   grid-template-columns: minmax(350px, 2fr) minmax(600px, 3fr);
   gap: 2rem;
+
+  /* Tablet styles */
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 1rem;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 `;
 
 const CardContainer = styled.div`
@@ -30,6 +44,124 @@ const CardContainer = styled.div`
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   height: fit-content;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+`;
+
+// Mobile Resume Modal
+const MobileResumeModal = styled.div<{ $isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
+  transition: all 0.3s ease;
+  padding: 1rem;
+
+  /* Hide on desktop */
+  @media (min-width: 769px) {
+    display: none;
+  }
+`;
+
+const MobileResumeSheet = styled.div<{ $isOpen: boolean }>`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  transform: scale(${({ $isOpen }) => ($isOpen ? "1" : "0.9")})
+    translateY(${({ $isOpen }) => ($isOpen ? "0" : "20px")});
+  transition: all 0.3s ease;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+`;
+
+const MobileResumeHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-top: 0.5rem;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #000;
+    margin: 0;
+  }
+
+  button {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    svg {
+      font-size: 1.25rem;
+    }
+  }
+`;
+
+// Mobile Resume Button
+const MobileResumeButton = styled.button`
+  width: 100%;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  svg {
+    font-size: 1.125rem;
+  }
+
+  /* Hide on desktop */
+  @media (min-width: 769px) {
+    display: none;
+  }
+`;
+
+// Desktop Resume Container
+const DesktopResumeContainer = styled.div`
+  /* Hide on mobile */
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const CardHeader = styled.div`
@@ -49,6 +181,19 @@ const CardHeader = styled.div`
     font-weight: 600;
     margin: 0;
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+
+    h2 {
+      font-size: 1.25rem;
+    }
+
+    svg {
+      font-size: 1.25rem;
+    }
+  }
 `;
 
 const FormGroup = styled.div`
@@ -60,6 +205,16 @@ const FormGroup = styled.div`
     font-weight: 500;
     color: ${({ theme }) => theme.colors.textLight};
     margin-bottom: 0.75rem;
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    margin-bottom: 1.25rem;
+
+    label {
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
   }
 `;
 
@@ -78,6 +233,12 @@ const Input = styled.input`
     border-color: rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.08);
     outline: none;
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 0.875rem;
+    font-size: 1rem;
   }
 `;
 
@@ -106,6 +267,12 @@ const Select = styled.select`
     font-size: 0.9375rem;
     line-height: 1.5;
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 0.875rem;
+    font-size: 1rem;
+  }
 `;
 
 const TextArea = styled.textarea`
@@ -125,6 +292,13 @@ const TextArea = styled.textarea`
     border-color: rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.08);
     outline: none;
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 0.875rem;
+    font-size: 1rem;
+    min-height: 120px;
   }
 `;
 
@@ -160,6 +334,23 @@ const UploadArea = styled.div`
     color: ${({ theme }) => theme.colors.textLight};
     margin: 0;
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+
+    svg {
+      font-size: 1.75rem;
+    }
+
+    h3 {
+      font-size: 1rem;
+    }
+
+    p {
+      font-size: 0.8125rem;
+    }
+  }
 `;
 
 const SubmitButton = styled.button`
@@ -188,6 +379,13 @@ const SubmitButton = styled.button`
     opacity: 0.7;
     cursor: not-allowed;
     transform: none;
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 1.125rem;
+    font-size: 1.125rem;
+    margin-top: 1.5rem;
   }
 `;
 
@@ -221,6 +419,12 @@ const DateInput = styled.input`
     background: rgba(255, 255, 255, 0.08);
     outline: none;
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 0.875rem;
+    font-size: 1rem;
+  }
 `;
 
 const SelectedFileContainer = styled.div`
@@ -249,30 +453,28 @@ const RemoveButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  transition: opacity 0.2s ease;
+  transition: all 0.2s ease;
 
   &:hover {
     opacity: 0.8;
-  }
-
-  svg {
-    font-size: 1rem;
   }
 `;
 
 const NewJobPage: React.FC = () => {
   const navigate = useNavigate();
   const { jobs, setJobs } = useJobs();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [resume, setResume] = useState<File | null>(null);
+  const [isMobileResumeOpen, setIsMobileResumeOpen] = useState(false);
+
   const [formData, setFormData] = useState({
     company: "",
     position: "",
-    notes: "",
     status: JobStatus.PENDING,
     applied_date: "",
+    notes: "",
   });
-  const [resume, setResume] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -360,120 +562,184 @@ const NewJobPage: React.FC = () => {
     }
   };
 
+  const handleMobileResumeOpen = () => {
+    setIsMobileResumeOpen(true);
+  };
+
+  const handleMobileResumeClose = () => {
+    setIsMobileResumeOpen(false);
+  };
+
   return (
-    <PageContainer>
-      <CardContainer>
-        <CardHeader>
-          <FaBriefcase />
-          <h2>New Job Application</h2>
-        </CardHeader>
+    <>
+      <PageContainer>
+        <CardContainer>
+          <CardHeader>
+            <FaBriefcase />
+            <h2>New Job Application</h2>
+          </CardHeader>
 
-        <form onSubmit={handleSubmit}>
-          <FormGroup>
-            <label htmlFor="company">Company</label>
-            <Input
-              type="text"
-              id="company"
-              name="company"
-              value={formData.company}
-              onChange={handleInputChange}
-              required
+          <form onSubmit={handleSubmit}>
+            <FormGroup>
+              <label htmlFor="company">Company</label>
+              <Input
+                type="text"
+                id="company"
+                name="company"
+                value={formData.company}
+                onChange={handleInputChange}
+                required
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <label htmlFor="position">Position</label>
+              <Input
+                type="text"
+                id="position"
+                name="position"
+                value={formData.position}
+                onChange={handleInputChange}
+                required
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <label htmlFor="status">Application Status</label>
+              <Select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+              >
+                {Object.values(JobStatus).map((status) => (
+                  <option key={status} value={status}>
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </option>
+                ))}
+              </Select>
+            </FormGroup>
+
+            <FormGroup>
+              <label htmlFor="applied_date">Applied Date</label>
+              <DateInput
+                type="date"
+                id="applied_date"
+                name="applied_date"
+                value={formData.applied_date}
+                onChange={handleInputChange}
+                max={new Date().toISOString().split("T")[0]}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <label htmlFor="notes">Notes</label>
+              <TextArea
+                id="notes"
+                name="notes"
+                value={formData.notes}
+                onChange={handleInputChange}
+                placeholder="Add any relevant notes about the position..."
+              />
+            </FormGroup>
+
+            {/* Mobile Resume Button */}
+            <MobileResumeButton type="button" onClick={handleMobileResumeOpen}>
+              <FaFileAlt />
+              Resume Versions
+            </MobileResumeButton>
+
+            <SubmitButton type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Creating..." : "Create Job Application"}
+            </SubmitButton>
+
+            {error && <ErrorMessage>{error}</ErrorMessage>}
+          </form>
+        </CardContainer>
+
+        {/* Desktop Resume Container */}
+        <DesktopResumeContainer>
+          <CardContainer>
+            <CardHeader>
+              <FaFileAlt />
+              <h2>Resume</h2>
+            </CardHeader>
+
+            <label htmlFor="resume">
+              <UploadArea>
+                <FaCloudUploadAlt />
+                <h3>Upload Resume</h3>
+                <p>Drag and drop your resume here or click to browse</p>
+                <p>Supported formats: PDF, DOC, DOCX</p>
+              </UploadArea>
+            </label>
+            <input
+              type="file"
+              id="resume"
+              name="resume"
+              onChange={handleFileChange}
+              accept=".pdf,.doc,.docx"
+              style={{ display: "none" }}
             />
-          </FormGroup>
 
-          <FormGroup>
-            <label htmlFor="position">Position</label>
-            <Input
-              type="text"
-              id="position"
-              name="position"
-              value={formData.position}
-              onChange={handleInputChange}
-              required
-            />
-          </FormGroup>
+            {resume && (
+              <SelectedFileContainer>
+                <FileName>{resume.name}</FileName>
+                <RemoveButton onClick={handleRemoveFile}>
+                  <FaTrash />
+                  Remove
+                </RemoveButton>
+              </SelectedFileContainer>
+            )}
+          </CardContainer>
+        </DesktopResumeContainer>
+      </PageContainer>
 
-          <FormGroup>
-            <label htmlFor="status">Application Status</label>
-            <Select
-              id="status"
-              name="status"
-              value={formData.status}
-              onChange={handleInputChange}
-            >
-              {Object.values(JobStatus).map((status) => (
-                <option key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </option>
-              ))}
-            </Select>
-          </FormGroup>
+      {/* Mobile Resume Modal */}
+      <MobileResumeModal
+        $isOpen={isMobileResumeOpen}
+        onClick={handleMobileResumeClose}
+      >
+        <MobileResumeSheet
+          $isOpen={isMobileResumeOpen}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <MobileResumeHeader>
+            <h3>Resume Versions</h3>
+            <button onClick={handleMobileResumeClose}>
+              <FaTimes />
+            </button>
+          </MobileResumeHeader>
 
-          <FormGroup>
-            <label htmlFor="applied_date">Applied Date</label>
-            <DateInput
-              type="date"
-              id="applied_date"
-              name="applied_date"
-              value={formData.applied_date}
-              onChange={handleInputChange}
-              max={new Date().toISOString().split("T")[0]}
-            />
-          </FormGroup>
+          <label htmlFor="mobile-resume">
+            <UploadArea>
+              <FaCloudUploadAlt />
+              <h3>Upload Resume</h3>
+              <p>Drag and drop your resume here or click to browse</p>
+              <p>Supported formats: PDF, DOC, DOCX</p>
+            </UploadArea>
+          </label>
+          <input
+            type="file"
+            id="mobile-resume"
+            name="resume"
+            onChange={handleFileChange}
+            accept=".pdf,.doc,.docx"
+            style={{ display: "none" }}
+          />
 
-          <FormGroup>
-            <label htmlFor="notes">Notes</label>
-            <TextArea
-              id="notes"
-              name="notes"
-              value={formData.notes}
-              onChange={handleInputChange}
-              placeholder="Add any relevant notes about the position..."
-            />
-          </FormGroup>
-
-          <SubmitButton type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create Job Application"}
-          </SubmitButton>
-
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-        </form>
-      </CardContainer>
-
-      <CardContainer>
-        <CardHeader>
-          <FaFileAlt />
-          <h2>Resume</h2>
-        </CardHeader>
-
-        <label htmlFor="resume">
-          <UploadArea>
-            <FaCloudUploadAlt />
-            <h3>Upload Resume</h3>
-            <p>Drag and drop your resume here or click to browse</p>
-            <p>Supported formats: PDF, DOC, DOCX</p>
-          </UploadArea>
-        </label>
-        <input
-          type="file"
-          id="resume"
-          name="resume"
-          onChange={handleFileChange}
-          accept=".pdf,.doc,.docx"
-          style={{ display: "none" }}
-        />
-
-        {resume && (
-          <SelectedFileContainer>
-            <FileName>{resume.name}</FileName>
-            <RemoveButton onClick={handleRemoveFile}>
-              <FaTrash />
-              Remove
-            </RemoveButton>
-          </SelectedFileContainer>
-        )}
-      </CardContainer>
-    </PageContainer>
+          {resume && (
+            <SelectedFileContainer>
+              <FileName>{resume.name}</FileName>
+              <RemoveButton onClick={handleRemoveFile}>
+                <FaTrash />
+                Remove
+              </RemoveButton>
+            </SelectedFileContainer>
+          )}
+        </MobileResumeSheet>
+      </MobileResumeModal>
+    </>
   );
 };
 
