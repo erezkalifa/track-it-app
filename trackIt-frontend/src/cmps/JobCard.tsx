@@ -94,6 +94,15 @@ const Card = styled.div<CardProps>`
 
   /* Shadow */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    min-width: 280px;
+    max-width: 320px;
+    padding: 1rem;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
 `;
 
 const CardContent = styled.div`
@@ -108,6 +117,12 @@ const CompanyName = styled.h5`
 
   /* Spacing */
   margin-bottom: 0.75rem;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const Position = styled.h6`
@@ -118,6 +133,12 @@ const Position = styled.h6`
 
   /* Spacing */
   margin-bottom: 1rem;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const StatusBadge = styled.span<{ $status: string }>`
@@ -196,6 +217,11 @@ const ButtonGroup = styled.div`
   gap: 0.5rem;
   margin-top: auto;
   padding-top: 1rem;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding-top: 0.75rem;
+  }
 `;
 
 const ActionButton = styled.button`

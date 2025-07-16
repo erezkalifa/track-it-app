@@ -2,13 +2,19 @@ import React from "react";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { JobCard } from "../cmps/JobCard";
-import { FilterBar } from "../cmps/FilterBar";
+import { FilterBar, MobileFilterButton } from "../cmps/FilterBar";
+import { FaFilter } from "react-icons/fa";
 import { type Job, JobStatus } from "../types/types";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useJobs } from "../context/JobContext";
 
 const PageContainer = styled.div`
   padding: 2rem;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const PageHeader = styled.div`
@@ -31,6 +37,23 @@ const JobsGrid = styled.div`
   gap: 2rem;
   margin-top: 2rem;
   align-items: start;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+
+    /* Hide scrollbar but keep functionality */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 `;
 
 const EmptyState = styled.div`
@@ -98,6 +121,7 @@ export const JobListPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [newJobId, setNewJobId] = useState<number | null>(null);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   // Apply filters whenever filters state changes
   useEffect(() => {
@@ -147,6 +171,14 @@ export const JobListPage = () => {
     navigate("/jobs/new");
   };
 
+  const handleMobileFilterOpen = () => {
+    setIsMobileFilterOpen(true);
+  };
+
+  const handleMobileFilterClose = () => {
+    setIsMobileFilterOpen(false);
+  };
+
   if (isLoading) {
     return (
       <PageContainer>
@@ -175,6 +207,21 @@ export const JobListPage = () => {
         onFilterChange={handleFilterChange}
         onResetFilters={handleResetFilters}
       />
+
+      {/* Mobile Filter Button - always visible, positioned above content */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-start",
+          marginBottom: "1rem",
+          paddingLeft: "0.5rem", // Small shift to the right
+        }}
+      >
+        <MobileFilterButton onClick={handleMobileFilterOpen}>
+          <FaFilter />
+          Filter
+        </MobileFilterButton>
+      </div>
 
       {filteredJobs.length > 0 ? (
         <JobsGrid>
@@ -209,6 +256,15 @@ export const JobListPage = () => {
           </AddJobButton>
         </div>
       )}
+
+      {/* Mobile Filter Modal */}
+      <FilterBar
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onResetFilters={handleResetFilters}
+        isMobileModalOpen={isMobileFilterOpen}
+        onMobileModalClose={handleMobileFilterClose}
+      />
     </PageContainer>
   );
 };
