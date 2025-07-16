@@ -396,6 +396,7 @@ export const FilterBar = ({
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const statusOptions = [
     { value: JobStatus.APPLIED, label: "Applied" },
@@ -432,6 +433,22 @@ export const FilterBar = ({
     }
   };
 
+  // Real-time filtering with debouncing - apply filter as user types
+  const handleRealTimeFilter = (
+    filterType: "company" | "position" | "status",
+    value: string
+  ) => {
+    // Clear previous timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced filtering
+    debounceTimeoutRef.current = setTimeout(() => {
+      onFilterChange(filterType, value);
+    }, 300); // 300ms delay
+  };
+
   // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -450,21 +467,21 @@ export const FilterBar = ({
     };
   }, []);
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    filterType: string
-  ) => {
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Handle Enter key to close dropdown
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      const searchValue = (e.target as HTMLInputElement).value.trim();
-      if (searchValue) {
-        handleFilterSelect(
-          filterType as "company" | "position" | "status",
-          searchValue
-        );
-        setActiveDropdown(null);
-        setSearchTerm("");
-      }
+      setActiveDropdown(null);
+      setSearchTerm("");
     }
   };
 
@@ -489,8 +506,12 @@ export const FilterBar = ({
                   type="text"
                   placeholder="Search companies..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, "company")}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSearchTerm(value);
+                    handleRealTimeFilter("company", value);
+                  }}
+                  onKeyDown={handleKeyDown}
                 />
                 <SearchButton onClick={() => handleSearch("company")}>
                   <FaSearch />
@@ -521,8 +542,12 @@ export const FilterBar = ({
                   type="text"
                   placeholder="Search positions..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, "position")}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSearchTerm(value);
+                    handleRealTimeFilter("position", value);
+                  }}
+                  onKeyDown={handleKeyDown}
                 />
                 <SearchButton onClick={() => handleSearch("position")}>
                   <FaSearch />
