@@ -2,8 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { JobCard } from "../cmps/JobCard";
-import { FilterBar, MobileFilterButton } from "../cmps/FilterBar";
-import { FaFilter } from "react-icons/fa";
+import { FilterBar } from "../cmps/FilterBar";
 import { type Job, JobStatus } from "../types/types";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useJobs } from "../context/JobContext";
@@ -171,10 +170,6 @@ export const JobListPage = () => {
     navigate("/jobs/new");
   };
 
-  const handleMobileFilterOpen = () => {
-    setIsMobileFilterOpen(true);
-  };
-
   const handleMobileFilterClose = () => {
     setIsMobileFilterOpen(false);
   };
@@ -206,22 +201,9 @@ export const JobListPage = () => {
         filters={filters}
         onFilterChange={handleFilterChange}
         onResetFilters={handleResetFilters}
+        isMobileModalOpen={isMobileFilterOpen}
+        onMobileModalClose={handleMobileFilterClose}
       />
-
-      {/* Mobile Filter Button - always visible, positioned above content */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-start",
-          marginBottom: "1rem",
-          paddingLeft: "0.5rem", // Small shift to the right
-        }}
-      >
-        <MobileFilterButton onClick={handleMobileFilterOpen}>
-          <FaFilter />
-          Filter
-        </MobileFilterButton>
-      </div>
 
       {filteredJobs.length > 0 ? (
         <JobsGrid>
@@ -256,15 +238,6 @@ export const JobListPage = () => {
           </AddJobButton>
         </div>
       )}
-
-      {/* Mobile Filter Modal */}
-      <FilterBar
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onResetFilters={handleResetFilters}
-        isMobileModalOpen={isMobileFilterOpen}
-        onMobileModalClose={handleMobileFilterClose}
-      />
     </PageContainer>
   );
 };
