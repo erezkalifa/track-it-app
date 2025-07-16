@@ -26,5 +26,28 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   console.log("Making request to:", config.url);
+  console.log("Full URL:", (config.baseURL || "") + (config.url || ""));
+  console.log("Headers:", config.headers);
   return config;
 });
+
+// Add response interceptor for debugging
+api.interceptors.response.use(
+  (response) => {
+    console.log("Response received:", response.status, response.data);
+    return response;
+  },
+  (error) => {
+    console.error("API Error:", {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+      config: {
+        url: error.config?.url,
+        baseURL: error.config?.baseURL,
+        method: error.config?.method,
+      },
+    });
+    return Promise.reject(error);
+  }
+);

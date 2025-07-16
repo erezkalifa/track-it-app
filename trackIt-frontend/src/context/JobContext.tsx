@@ -80,10 +80,22 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       try {
+        console.log("Fetching jobs from:", api.defaults.baseURL);
         const response = await api.get("/api/jobs");
+        console.log("Jobs response:", response.data);
         setJobs(response.data);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching jobs:", error);
+        if (error.response) {
+          console.error("Response status:", error.response.status);
+          console.error("Response data:", error.response.data);
+        } else if (error.request) {
+          console.error("No response received:", error.request);
+        } else {
+          console.error("Error setting up request:", error.message);
+        }
+        // Set empty jobs array on error
+        setJobs([]);
       } finally {
         setLoading(false);
       }
