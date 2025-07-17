@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -33,6 +33,12 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2rem;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 1rem;
+    gap: 1rem;
+  }
 `;
 
 const HeaderContainer = styled.div`
@@ -40,6 +46,12 @@ const HeaderContainer = styled.div`
   align-items: center;
   gap: 2rem;
   margin-bottom: 1rem;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const HeaderActions = styled.div`
@@ -47,6 +59,11 @@ const HeaderActions = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    gap: 0.5rem;
+  }
 `;
 
 const BackButton = styled.button`
@@ -71,6 +88,16 @@ const BackButton = styled.button`
   &:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+
+    span {
+      font-size: 1.125rem;
+    }
   }
 `;
 
@@ -113,12 +140,35 @@ const SaveButton = styled.button<{ $isSaved: boolean }>`
         ? "rgba(var(--color-primary-rgb), 0.3)"
         : "rgba(255, 255, 255, 0.15)"};
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    gap: 0.5rem;
+
+    svg {
+      font-size: 0.875rem;
+    }
+  }
 `;
 
 const CardsContainer = styled.div`
   display: grid;
   grid-template-columns: minmax(350px, 2fr) minmax(600px, 3fr);
   gap: 2rem;
+
+  /* Tablet styles */
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 `;
 
 const CardContainer = styled.div`
@@ -132,6 +182,125 @@ const CardContainer = styled.div`
   height: fit-content;
   min-width: 400px;
   width: 100%;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    min-width: unset;
+  }
+`;
+
+// Mobile Resume Modal
+const MobileResumeModal = styled.div<{ $isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
+  transition: all 0.3s ease;
+  padding: 1rem;
+
+  /* Hide on desktop */
+  @media (min-width: 769px) {
+    display: none;
+  }
+`;
+
+const MobileResumeSheet = styled.div<{ $isOpen: boolean }>`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  transform: scale(${({ $isOpen }) => ($isOpen ? "1" : "0.9")})
+    translateY(${({ $isOpen }) => ($isOpen ? "0" : "20px")});
+  transition: all 0.3s ease;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+`;
+
+const MobileResumeHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-top: 0.5rem;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #000;
+    margin: 0;
+  }
+
+  button {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    svg {
+      font-size: 1.25rem;
+    }
+  }
+`;
+
+// Mobile Resume Button
+const MobileResumeButton = styled.button`
+  width: 100%;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  svg {
+    font-size: 1.125rem;
+  }
+
+  /* Hide on desktop */
+  @media (min-width: 769px) {
+    display: none;
+  }
+`;
+
+// Desktop Resume Container
+const DesktopResumeContainer = styled.div`
+  /* Hide on mobile */
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const CardHeader = styled.div`
@@ -154,6 +323,20 @@ const CardHeader = styled.div`
     margin: 0;
     color: ${({ theme }) => theme.colors.text};
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+
+    h2 {
+      font-size: 1.125rem;
+    }
+
+    svg {
+      font-size: 1.25rem;
+    }
+  }
 `;
 
 const DetailsGrid = styled.div`
@@ -161,6 +344,12 @@ const DetailsGrid = styled.div`
   flex-direction: column;
   gap: 1.25rem;
   margin-bottom: 2rem;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const FormGroup = styled.div`
@@ -246,6 +435,25 @@ const FormGroup = styled.div`
       }
     }
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 0.75rem;
+    gap: 0.5rem;
+
+    label {
+      font-size: 0.8125rem;
+      min-width: 60px;
+    }
+
+    .value {
+      font-size: 0.8125rem;
+    }
+
+    svg {
+      font-size: 1rem;
+    }
+  }
 `;
 
 const UploadArea = styled.div`
@@ -280,6 +488,23 @@ const UploadArea = styled.div`
     color: ${({ theme }) => theme.colors.textLight};
     margin: 0;
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+
+    svg {
+      font-size: 1.75rem;
+    }
+
+    h3 {
+      font-size: 1rem;
+    }
+
+    p {
+      font-size: 0.8125rem;
+    }
+  }
 `;
 
 const ChooseFileButton = styled.button`
@@ -308,10 +533,25 @@ const ChooseFileButton = styled.button`
     font-size: 1.125rem;
     margin: 0;
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+
+    svg {
+      font-size: 1rem;
+    }
+  }
 `;
 
 const VersionsTable = styled.div`
   margin-top: 2rem;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    margin-top: 1.5rem;
+  }
 `;
 
 const TableHeader = styled.div`
@@ -328,6 +568,17 @@ const TableHeader = styled.div`
     font-weight: 500;
     white-space: nowrap;
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    grid-template-columns: 50px 1fr 80px 80px;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+
+    span {
+      font-size: 0.75rem;
+    }
+  }
 `;
 
 const VersionRow = styled.div`
@@ -342,6 +593,13 @@ const VersionRow = styled.div`
   &:hover {
     background: rgba(255, 255, 255, 0.02);
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    grid-template-columns: 50px 1fr 80px 80px;
+    gap: 0.25rem;
+    padding: 0.75rem;
+  }
 `;
 
 const VersionBadge = styled.span`
@@ -351,6 +609,12 @@ const VersionBadge = styled.span`
   border-radius: 12px;
   font-size: 0.875rem;
   font-weight: 500;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+  }
 `;
 
 const FileName = styled.div`
@@ -374,17 +638,41 @@ const FileName = styled.div`
     width: 20ch;
     white-space: pre-wrap;
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    gap: 0.5rem;
+
+    svg {
+      font-size: 1rem;
+    }
+
+    span {
+      font-size: 0.8125rem;
+      width: 15ch;
+    }
+  }
 `;
 
 const UploadDate = styled.span`
   font-size: 0.875rem;
   color: ${({ theme }) => theme.colors.textLight};
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+  }
 `;
 
 const ActionButtons = styled.div`
   display: flex;
   gap: 0.25rem;
   justify-content: flex-end;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    gap: 0.125rem;
+  }
 `;
 
 const ActionButton = styled.button<{
@@ -474,6 +762,17 @@ const ActionButton = styled.button<{
       }
     }};
   }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+    padding: 0.375rem;
+
+    svg {
+      font-size: 0.875rem;
+    }
+  }
 `;
 
 const DeleteSection = styled.div`
@@ -484,12 +783,24 @@ const DeleteSection = styled.div`
   text-align: center;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin-top: 1rem;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    margin-top: 0.5rem;
+  }
 `;
 
 const DeleteWarning = styled.p`
   color: ${({ theme }) => theme.colors.textLight};
   margin-bottom: 1rem;
   font-size: 0.9375rem;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const DeleteJobButton = styled.button`
@@ -497,24 +808,35 @@ const DeleteJobButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  padding: 1rem 2rem;
-  background: ${({ theme }) => theme.colors.danger};
-  color: white;
-  border: none;
+  padding: 0.875rem 1.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 12px;
-  font-size: 1rem;
+  color: ${({ theme }) => theme.colors.danger};
+  font-size: 0.9375rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  max-width: 300px;
 
   &:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
   }
 
   svg {
-    font-size: 1.125rem;
+    font-size: 1rem;
+    color: ${({ theme }) => theme.colors.danger};
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    gap: 0.5rem;
+
+    svg {
+      font-size: 0.875rem;
+    }
   }
 `;
 
@@ -727,6 +1049,7 @@ const JobDetailPage: React.FC = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
   const { isGuest } = useAuth();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -952,9 +1275,15 @@ const JobDetailPage: React.FC = () => {
               />
             </FormGroup>
           </DetailsGrid>
+
+          {/* Mobile Resume Button */}
+          <MobileResumeButton onClick={() => setIsResumeModalOpen(true)}>
+            <FaFileAlt />
+            Resume Versions
+          </MobileResumeButton>
         </CardContainer>
 
-        <div>
+        <DesktopResumeContainer>
           <CardContainer>
             <CardHeader>
               <FaFileAlt />
@@ -1021,7 +1350,7 @@ const JobDetailPage: React.FC = () => {
               ))}
             </VersionsTable>
           </CardContainer>
-        </div>
+        </DesktopResumeContainer>
       </CardsContainer>
 
       <DeleteSection>
@@ -1034,6 +1363,84 @@ const JobDetailPage: React.FC = () => {
           Delete Job Application
         </DeleteJobButton>
       </DeleteSection>
+
+      {/* Mobile Resume Modal */}
+      <MobileResumeModal
+        $isOpen={isResumeModalOpen}
+        onClick={() => setIsResumeModalOpen(false)}
+      >
+        <MobileResumeSheet
+          $isOpen={isResumeModalOpen}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <MobileResumeHeader>
+            <h3>Resume Versions</h3>
+            <button onClick={() => setIsResumeModalOpen(false)}>
+              <FaTimes />
+            </button>
+          </MobileResumeHeader>
+
+          <UploadArea onClick={handleFileUpload}>
+            <FaCloudUploadAlt />
+            <h3>Upload New Resume</h3>
+            <p>Drag and drop your file here or click to browse</p>
+            <ChooseFileButton>
+              <FaFolder />
+              Choose File
+            </ChooseFileButton>
+          </UploadArea>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+            accept=".pdf,.doc,.docx"
+          />
+
+          <VersionsTable>
+            <TableHeader>
+              <span>Version</span>
+              <span>Filename</span>
+              <span>Upload Date</span>
+              <span>Actions</span>
+            </TableHeader>
+
+            {job.resumes.map((version) => (
+              <VersionRow key={version.id}>
+                <VersionBadge>v{version.version}</VersionBadge>
+                <FileName>
+                  <FaFileAlt />
+                  <span>{version.filename}</span>
+                </FileName>
+                <UploadDate>
+                  {new Date(version.upload_date).toLocaleString()}
+                </UploadDate>
+                <ActionButtons>
+                  <ActionButton
+                    title="View"
+                    onClick={() => handleView(version.id)}
+                  >
+                    <FaEye />
+                  </ActionButton>
+                  <ActionButton
+                    title="Download"
+                    onClick={() => handleDownload(version.id)}
+                  >
+                    <FaDownload />
+                  </ActionButton>
+                  <ActionButton
+                    title="Delete"
+                    className="delete"
+                    onClick={() => handleDelete(version.id)}
+                  >
+                    <FaTrash />
+                  </ActionButton>
+                </ActionButtons>
+              </VersionRow>
+            ))}
+          </VersionsTable>
+        </MobileResumeSheet>
+      </MobileResumeModal>
     </PageContainer>
   );
 };

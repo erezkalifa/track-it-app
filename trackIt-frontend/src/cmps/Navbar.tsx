@@ -12,6 +12,7 @@ import type { LinkProps } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { capitalizeFirstLetter } from "../utils/stringUtils";
 import { HowToUseModal } from "./HowToUseModal";
+import { FaQuestionCircle } from "react-icons/fa";
 
 const StyledAppBar = styled(AppBar)(() => ({
   background: "rgba(255, 255, 255, 0.08)",
@@ -58,6 +59,7 @@ const HowToUseButton = styled("button")`
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   padding: 0.5rem 0;
   position: relative;
   background: none;
@@ -81,6 +83,36 @@ const HowToUseButton = styled("button")`
     &::after {
       width: 100%;
     }
+  }
+
+  /* Hide text on small screens, show only icon */
+  @media (max-width: 445px) {
+    .how-to-use-text {
+      display: none;
+    }
+
+    gap: 0;
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: rgba(99, 102, 241, 0.1);
+
+    &:hover {
+      background: rgba(99, 102, 241, 0.15);
+    }
+
+    &::after {
+      display: none;
+    }
+  }
+`;
+
+const QuestionIcon = styled(FaQuestionCircle)`
+  font-size: 1.125rem;
+  color: inherit;
+
+  /* Larger icon on small screens */
+  @media (max-width: 445px) {
+    font-size: 1.25rem;
   }
 `;
 
@@ -170,7 +202,8 @@ const Navbar = (): JSX.Element => {
                 <LogoText>TrackIt</LogoText>
               </LogoLink>
               <HowToUseButton onClick={() => setIsHowToUseOpen(true)}>
-                How To Use
+                <QuestionIcon />
+                <span className="how-to-use-text">How To Use</span>
               </HowToUseButton>
             </LogoSection>
 
