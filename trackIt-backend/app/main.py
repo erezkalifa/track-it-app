@@ -25,6 +25,7 @@ logger.info(f"Database URL: {settings.DATABASE_URL.split('@')[-1]}")  # Log only
 origins = [
     "*",  # Allow all origins temporarily
     "https://track-it-app-production.up.railway.app",
+    "https://track-it-app-production-bcae.up.railway.app"
     "http://localhost:3000",
     "http://localhost:5173"
 ]
