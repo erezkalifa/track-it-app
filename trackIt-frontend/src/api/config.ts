@@ -1,17 +1,17 @@
 import axios from "axios";
 
-const API_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://track-it-app-production-bcae.up.railway.app"
-    : "http://localhost:8000";
+// src/api/config.ts
 
-console.log("API URL:", API_URL);
+const localUrl = "http://localhost:8000";
+
+const prodUrl = "https://track-it-app-production-bcae.up.railway.app";
+
+export const API_URL =
+  window.location.hostname === "localhost" ? localUrl : prodUrl;
 
 export const api = axios.create({
   baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
 api.interceptors.request.use((config) => {
