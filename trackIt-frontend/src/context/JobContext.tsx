@@ -81,7 +81,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
 
       try {
         console.log("Fetching jobs from:", api.defaults.baseURL);
-        const response = await api.get("/api/jobs");
+        const response = await api.get("/api/jobs/");
         console.log("Jobs response:", response.data);
         setJobs(response.data);
       } catch (error: any) {

@@ -319,7 +319,7 @@ const NewJobPage: React.FC = () => {
         formDataToSend.append("resume", resume);
       }
 
-      const { data } = await api.post("/api/jobs", formDataToSend, {
+      const { data } = await api.post("/api/jobs/", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
