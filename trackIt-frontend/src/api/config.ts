@@ -23,7 +23,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Add response interceptor for debugging
+// add response interceptor for debugging
 api.interceptors.response.use(
   (response) => {
     console.log("Response received:", response.status, response.data);
