@@ -10,9 +10,10 @@ import {
   FaTrash,
   FaFolder,
 } from "react-icons/fa";
-import { JobStatus } from "../types/types";
+import { JobStatus, type Job } from "../types/types";
 import { api } from "../api/config.js";
 import { useJobs } from "../context/JobContext";
+import { useAuth } from "../context/AuthContext";
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -263,6 +264,7 @@ const RemoveButton = styled.button`
 const NewJobPage: React.FC = () => {
   const navigate = useNavigate();
   const { jobs, setJobs } = useJobs();
+  const { isGuest } = useAuth();
   const [formData, setFormData] = useState({
     company: "",
     position: "",
@@ -298,6 +300,30 @@ const NewJobPage: React.FC = () => {
     setError(null);
 
     try {
+      if (isGuest) {
+        // For guest users, create job locally without sending to server
+        const newJob: Job = {
+          id: Date.now(), // Generate a temporary ID
+          company: formData.company,
+          position: formData.position,
+          status: formData.status,
+          notes: formData.notes || "",
+          applied_date: formData.applied_date
+            ? new Date(formData.applied_date).toISOString()
+            : undefined,
+          created_at: new Date().toISOString(),
+          resumes: [], // Guest mode doesn't support resume uploads
+        };
+
+        // Update jobs context with the new job
+        setJobs([...jobs, newJob]);
+
+        // Navigate to jobs list with the new job ID
+        navigate("/jobs", { state: { newJobId: newJob.id } });
+        return;
+      }
+
+      // For authenticated users, send to server
       const formDataToSend = new FormData();
 
       // Convert status to lowercase string if it's not already
@@ -367,6 +393,23 @@ const NewJobPage: React.FC = () => {
           <FaBriefcase />
           <h2>New Job Application</h2>
         </CardHeader>
+
+        {isGuest && (
+          <div
+            style={{
+              padding: "1rem",
+              marginBottom: "1.5rem",
+              background: "rgba(255, 193, 7, 0.1)",
+              border: "1px solid rgba(255, 193, 7, 0.3)",
+              borderRadius: "8px",
+              color: "#856404",
+            }}
+          >
+            <strong>Guest Mode:</strong> Your job applications will be stored
+            locally and will not be saved permanently. Sign up to save your data
+            permanently.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <FormGroup>
@@ -446,31 +489,57 @@ const NewJobPage: React.FC = () => {
           <h2>Resume</h2>
         </CardHeader>
 
-        <label htmlFor="resume">
-          <UploadArea>
-            <FaCloudUploadAlt />
-            <h3>Upload Resume</h3>
-            <p>Drag and drop your resume here or click to browse</p>
-            <p>Supported formats: PDF, DOC, DOCX</p>
-          </UploadArea>
-        </label>
-        <input
-          type="file"
-          id="resume"
-          name="resume"
-          onChange={handleFileChange}
-          accept=".pdf,.doc,.docx"
-          style={{ display: "none" }}
-        />
+        {isGuest ? (
+          <div
+            style={{
+              padding: "2rem",
+              textAlign: "center",
+              color: "#666",
+              background: "rgba(255, 255, 255, 0.05)",
+              borderRadius: "12px",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            <FaFileAlt
+              style={{ fontSize: "2rem", marginBottom: "1rem", opacity: 0.5 }}
+            />
+            <h3 style={{ margin: "0 0 0.5rem 0" }}>
+              Resume Upload Not Available
+            </h3>
+            <p style={{ margin: 0, fontSize: "0.9rem" }}>
+              Resume upload is only available for registered users. Sign up to
+              upload and manage your resume files.
+            </p>
+          </div>
+        ) : (
+          <>
+            <label htmlFor="resume">
+              <UploadArea>
+                <FaCloudUploadAlt />
+                <h3>Upload Resume</h3>
+                <p>Drag and drop your resume here or click to browse</p>
+                <p>Supported formats: PDF, DOC, DOCX</p>
+              </UploadArea>
+            </label>
+            <input
+              type="file"
+              id="resume"
+              name="resume"
+              onChange={handleFileChange}
+              accept=".pdf,.doc,.docx"
+              style={{ display: "none" }}
+            />
 
-        {resume && (
-          <SelectedFileContainer>
-            <FileName>{resume.name}</FileName>
-            <RemoveButton onClick={handleRemoveFile}>
-              <FaTrash />
-              Remove
-            </RemoveButton>
-          </SelectedFileContainer>
+            {resume && (
+              <SelectedFileContainer>
+                <FileName>{resume.name}</FileName>
+                <RemoveButton onClick={handleRemoveFile}>
+                  <FaTrash />
+                  Remove
+                </RemoveButton>
+              </SelectedFileContainer>
+            )}
+          </>
         )}
       </CardContainer>
     </PageContainer>
