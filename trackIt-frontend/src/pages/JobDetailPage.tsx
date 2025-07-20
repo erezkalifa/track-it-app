@@ -29,15 +29,18 @@ import { useJobs } from "../context/JobContext";
 import { useAuth } from "../context/AuthContext";
 
 const PageContainer = styled.div`
-  padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
 
   /* Mobile styles */
   @media (max-width: 768px) {
-    padding: 1rem;
     gap: 1rem;
+  }
+
+  /* Small mobile styles */
+  @media (max-width: 399px) {
+    gap: 0.75rem;
   }
 `;
 
@@ -52,6 +55,12 @@ const HeaderContainer = styled.div`
     gap: 1rem;
     margin-bottom: 0.5rem;
   }
+
+  /* Small mobile styles */
+  @media (max-width: 399px) {
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
 `;
 
 const HeaderActions = styled.div`
@@ -63,6 +72,11 @@ const HeaderActions = styled.div`
   /* Mobile styles */
   @media (max-width: 768px) {
     gap: 0.5rem;
+  }
+
+  /* Small mobile styles */
+  @media (max-width: 399px) {
+    gap: 0.25rem;
   }
 `;
 
@@ -97,6 +111,17 @@ const BackButton = styled.button`
 
     span {
       font-size: 1.125rem;
+    }
+  }
+
+  /* Small mobile styles */
+  @media (max-width: 399px) {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+
+    span {
+      font-size: 1rem;
     }
   }
 `;
@@ -151,6 +176,18 @@ const SaveButton = styled.button<{ $isSaved: boolean }>`
       font-size: 0.875rem;
     }
   }
+
+  /* Small mobile styles */
+  @media (max-width: 399px) {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    gap: 0.375rem;
+    white-space: nowrap;
+
+    svg {
+      font-size: 0.75rem;
+    }
+  }
 `;
 
 const CardsContainer = styled.div`
@@ -187,6 +224,12 @@ const CardContainer = styled.div`
   @media (max-width: 768px) {
     padding: 1.5rem;
     min-width: unset;
+  }
+
+  /* Small mobile styles */
+  @media (max-width: 399px) {
+    padding: 1rem;
+    border-radius: 12px;
   }
 `;
 
@@ -454,6 +497,34 @@ const FormGroup = styled.div`
       font-size: 1rem;
     }
   }
+
+  /* Small mobile styles */
+  @media (max-width: 399px) {
+    padding: 0.5rem;
+    gap: 0.375rem;
+
+    label {
+      font-size: 0.75rem;
+      min-width: 50px;
+    }
+
+    .value {
+      font-size: 0.75rem;
+    }
+
+    svg {
+      font-size: 0.875rem;
+    }
+
+    &.notes {
+      padding: 0.5rem;
+
+      .value {
+        font-size: 0.75rem;
+        max-height: 60px;
+      }
+    }
+  }
 `;
 
 const UploadArea = styled.div`
@@ -505,6 +576,23 @@ const UploadArea = styled.div`
       font-size: 0.8125rem;
     }
   }
+
+  /* Small mobile styles */
+  @media (max-width: 399px) {
+    padding: 1rem;
+
+    svg {
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      font-size: 0.875rem;
+    }
+
+    p {
+      font-size: 0.75rem;
+    }
+  }
 `;
 
 const ChooseFileButton = styled.button`
@@ -541,6 +629,16 @@ const ChooseFileButton = styled.button`
 
     svg {
       font-size: 1rem;
+    }
+  }
+
+  /* Small mobile styles */
+  @media (max-width: 399px) {
+    padding: 0.625rem;
+    font-size: 0.8125rem;
+
+    svg {
+      font-size: 0.875rem;
     }
   }
 `;

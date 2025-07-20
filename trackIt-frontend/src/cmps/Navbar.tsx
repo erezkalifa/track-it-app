@@ -195,7 +195,23 @@ const Navbar = (): JSX.Element => {
   return (
     <>
       <StyledAppBar position="sticky">
-        <Container maxWidth="lg">
+        <Container
+          maxWidth={false}
+          sx={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "0 1rem",
+            "@media (min-width: 640px)": {
+              padding: "0 2rem",
+            },
+            "@media (min-width: 1024px)": {
+              padding: "0",
+            },
+            "@media (max-width: 399px)": {
+              padding: "0 0.75rem",
+            },
+          }}
+        >
           <StyledToolbar disableGutters>
             <LogoSection>
               <LogoLink to="/">

@@ -17,7 +17,6 @@ import { useJobs } from "../context/JobContext";
 import { useAuth } from "../context/AuthContext";
 
 const PageContainer = styled.div`
-  padding: 2rem;
   display: grid;
   grid-template-columns: minmax(350px, 2fr) minmax(600px, 3fr);
   gap: 2rem;
@@ -30,7 +29,6 @@ const PageContainer = styled.div`
 
   /* Mobile styles */
   @media (max-width: 768px) {
-    padding: 1rem;
     grid-template-columns: 1fr;
     gap: 1rem;
   }

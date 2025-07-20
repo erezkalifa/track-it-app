@@ -9,12 +9,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useJobs } from "../context/JobContext";
 
 const PageContainer = styled.div`
-  padding: 2rem;
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
+  /* Remove padding since MainLayout already provides it */
 `;
 
 const PageHeader = styled.div`

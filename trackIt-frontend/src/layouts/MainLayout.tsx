@@ -24,6 +24,7 @@ const MainContent = styled.main`
 const ContentContainer = styled.div`
   width: 100%;
   max-width: 1200px;
+  margin: 0 auto;
 
   /* Responsive padding */
   padding: 0 1rem;
@@ -34,6 +35,11 @@ const ContentContainer = styled.div`
 
   @media (min-width: 1024px) {
     padding: 0;
+  }
+
+  /* Small mobile styles */
+  @media (max-width: 399px) {
+    padding: 0 0.75rem;
   }
 `;
 
