@@ -40,18 +40,96 @@ const JobsGrid = styled.div`
   /* Mobile styles */
   @media (max-width: 768px) {
     display: flex;
-    overflow-x: auto;
+    flex-direction: column;
     gap: 1rem;
     padding: 0.5rem 0;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
+    position: relative;
+  }
+`;
 
-    /* Hide scrollbar but keep functionality */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar {
-      display: none;
+const ScrollProgressIndicator = styled.div<{ $progress: number }>`
+  position: fixed;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  z-index: 1000;
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: ${({ $progress }) => $progress}%;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    transition: height 0.1s ease;
+  }
+
+  /* Only show on mobile */
+  @media (min-width: 769px) {
+    display: none;
+  }
+`;
+
+const ScrollDownArrow = styled.div<{ $isVisible: boolean }>`
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
+  transition: all 0.3s ease;
+  pointer-events: ${({ $isVisible }) => ($isVisible ? "auto" : "none")};
+
+  /* Arrow icon */
+  &::after {
+    content: "↓";
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    animation: ${({ $isVisible }) =>
+      $isVisible ? "bounce 2s infinite" : "none"};
+  }
+
+  /* Bounce animation */
+  @keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
     }
+    40% {
+      transform: translateY(-3px);
+    }
+    60% {
+      transform: translateY(-1px);
+    }
+  }
+
+  /* Hover effect */
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(-50%) scale(1.1);
+  }
+
+  /* Only show on mobile */
+  @media (min-width: 769px) {
+    display: none;
   }
 `;
 
@@ -117,6 +195,8 @@ export const JobListPage = () => {
     position: "",
     status: "",
   });
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showScrollArrow, setShowScrollArrow] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const [newJobId, setNewJobId] = useState<number | null>(null);
@@ -158,6 +238,19 @@ export const JobListPage = () => {
     }
   }, [location]);
 
+  // Add window scroll listener for mobile
+  useEffect(() => {
+    const handleWindowScroll = () => {
+      handleScroll();
+    };
+
+    window.addEventListener("scroll", handleWindowScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleWindowScroll);
+    };
+  }, []);
+
   const handleFilterChange = (filterType: string, value: string) => {
     setFilters((prev) => ({ ...prev, [filterType]: value }));
   };
@@ -172,6 +265,26 @@ export const JobListPage = () => {
 
   const handleMobileFilterClose = () => {
     setIsMobileFilterOpen(false);
+  };
+
+  const handleScrollDown = () => {
+    window.scrollBy({
+      top: 300,
+      behavior: "smooth",
+    });
+  };
+
+  const handleScroll = () => {
+    const scrollTop = window.scrollY;
+    const scrollHeight = document.documentElement.scrollHeight;
+    const clientHeight = window.innerHeight;
+
+    const progress = (scrollTop / (scrollHeight - clientHeight)) * 100;
+    setScrollProgress(Math.min(100, Math.max(0, progress)));
+
+    // Hide arrow when near bottom
+    const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
+    setShowScrollArrow(!isNearBottom);
   };
 
   if (isLoading) {
@@ -206,11 +319,18 @@ export const JobListPage = () => {
       />
 
       {filteredJobs.length > 0 ? (
-        <JobsGrid>
-          {filteredJobs.map((job) => (
-            <JobCard key={job.id} job={job} isNew={job.id === newJobId} />
-          ))}
-        </JobsGrid>
+        <>
+          <JobsGrid>
+            {filteredJobs.map((job) => (
+              <JobCard key={job.id} job={job} isNew={job.id === newJobId} />
+            ))}
+          </JobsGrid>
+          <ScrollProgressIndicator $progress={scrollProgress} />
+          <ScrollDownArrow
+            $isVisible={showScrollArrow}
+            onClick={handleScrollDown}
+          />
+        </>
       ) : (
         <EmptyState>
           <i
