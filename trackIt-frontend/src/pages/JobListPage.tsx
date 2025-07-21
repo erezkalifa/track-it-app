@@ -387,13 +387,6 @@ export const JobListPage = () => {
       )}
 
       {/* Mobile Filter Modal */}
-      <FilterBar
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onResetFilters={handleResetFilters}
-        isMobileModalOpen={isMobileFilterOpen}
-        onMobileModalClose={handleMobileFilterClose}
-      />
     </PageContainer>
   );
 };
