@@ -787,6 +787,7 @@ export const FilterBar = ({
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const statusDropdownRef = useRef<HTMLDivElement>(null);
+  const statusButtonRef = useRef<HTMLButtonElement>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const statusOptions = [
@@ -853,7 +854,9 @@ export const FilterBar = ({
       if (
         isStatusDropdownOpen &&
         statusDropdownRef.current &&
-        !statusDropdownRef.current.contains(target)
+        statusButtonRef.current &&
+        !statusDropdownRef.current.contains(target) &&
+        !statusButtonRef.current.contains(target)
       ) {
         setIsStatusDropdownOpen(false);
       }
@@ -1204,6 +1207,7 @@ export const FilterBar = ({
               <MobileStatusSelectButton
                 $isOpen={isStatusDropdownOpen}
                 onClick={handleMobileStatusToggle}
+                ref={statusButtonRef}
               >
                 {filters.status || "Select status"}
                 <FaChevronDown />
