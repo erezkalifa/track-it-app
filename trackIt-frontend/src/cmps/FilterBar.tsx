@@ -194,6 +194,85 @@ const MobileStatusOptions = styled.div`
   gap: 0.5rem;
 `;
 
+const MobileStatusSelect = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const MobileStatusSelectButton = styled.button<{ $isOpen: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  svg {
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+    transform: rotate(${({ $isOpen }) => ($isOpen ? "180deg" : "0deg")});
+  }
+`;
+
+const MobileStatusDropdown = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
+  transform: translateY(${({ $isOpen }) => ($isOpen ? "0" : "-10px")});
+  transition: all 0.2s ease;
+  max-height: 200px;
+  overflow-y: auto;
+`;
+
+const MobileStatusDropdownOption = styled.button<{ $isSelected: boolean }>`
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: ${({ $isSelected }) =>
+    $isSelected ? "rgba(99, 102, 241, 0.1)" : "transparent"};
+  color: ${({ $isSelected }) => ($isSelected ? "#6366f1" : "#333")};
+  font-size: 1rem;
+  font-weight: ${({ $isSelected }) => ($isSelected ? "500" : "400")};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+
+  &:hover {
+    background: ${({ $isSelected }) =>
+      $isSelected ? "rgba(99, 102, 241, 0.15)" : "rgba(0, 0, 0, 0.05)"};
+  }
+
+  &:first-child {
+    border-radius: 12px 12px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 12px 12px;
+  }
+`;
+
 const MobileStatusOption = styled.button<{ $active?: boolean }>`
   display: flex;
   align-items: center;
@@ -705,7 +784,9 @@ export const FilterBar = ({
     company: "",
     position: "",
   });
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const statusOptions = [
@@ -762,20 +843,26 @@ export const FilterBar = ({
   // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
+      const target = event.target as Node;
+      // Close desktop dropdown
+      if (containerRef.current && !containerRef.current.contains(target)) {
         setActiveDropdown(null);
         setSearchTerm("");
       }
+      // Close mobile status dropdown
+      if (
+        isStatusDropdownOpen &&
+        statusDropdownRef.current &&
+        !statusDropdownRef.current.contains(target)
+      ) {
+        setIsStatusDropdownOpen(false);
+      }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [isStatusDropdownOpen]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -839,7 +926,17 @@ export const FilterBar = ({
   };
 
   const handleMobileStatusSelect = (status: string) => {
-    onFilterChange("status", status);
+    // If clicking the same status, clear it (deselect)
+    if (filters.status === status) {
+      onFilterChange("status", "");
+    } else {
+      onFilterChange("status", status);
+    }
+    setIsStatusDropdownOpen(false);
+  };
+
+  const handleMobileStatusToggle = () => {
+    setIsStatusDropdownOpen(!isStatusDropdownOpen);
   };
 
   const handleMobileFilterRemove = (
@@ -1103,18 +1200,29 @@ export const FilterBar = ({
               <FaChartLine />
               Status
             </h4>
-            <MobileStatusOptions>
-              {statusOptions.map((status) => (
-                <MobileStatusOption
-                  key={status.value}
-                  $active={filters.status === status.value}
-                  onClick={() => handleMobileStatusSelect(status.value)}
-                >
-                  {status.label}
-                  {filters.status === status.value && <FaTimes />}
-                </MobileStatusOption>
-              ))}
-            </MobileStatusOptions>
+            <MobileStatusSelect>
+              <MobileStatusSelectButton
+                $isOpen={isStatusDropdownOpen}
+                onClick={handleMobileStatusToggle}
+              >
+                {filters.status || "Select status"}
+                <FaChevronDown />
+              </MobileStatusSelectButton>
+              <MobileStatusDropdown
+                $isOpen={isStatusDropdownOpen}
+                ref={statusDropdownRef}
+              >
+                {statusOptions.map((status) => (
+                  <MobileStatusDropdownOption
+                    key={status.value}
+                    $isSelected={filters.status === status.value}
+                    onClick={() => handleMobileStatusSelect(status.value)}
+                  >
+                    {status.label}
+                  </MobileStatusDropdownOption>
+                ))}
+              </MobileStatusDropdown>
+            </MobileStatusSelect>
           </MobileFilterSection>
 
           {/* Action Buttons */}
