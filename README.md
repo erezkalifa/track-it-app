@@ -1,6 +1,6 @@
 # TrackIt - Job Application Tracking System
 
-**🔗 Live Demo:** [Explore TrackIt Online 🚀](https://track-it-app-production.up.railway.app/)
++ **🔗 Live Demo:** <a href="https://track-it-app-production.up.railway.app/" target="_blank" rel="noopener noreferrer">Explore TrackIt Online 🚀</a>
 
 TrackIt is a modern, full-stack application designed to help job seekers efficiently manage and track their job applications throughout the job search process. Built with a robust Python backend and a responsive React frontend, TrackIt provides a seamless experience for organizing job applications, tracking application statuses, and managing related documents.
 
