@@ -28,6 +28,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   } | null>(null);
 
   const showToast = useCallback((message: string, type: ToastType) => {
+    console.log("showToast called with:", message, type);
     setToast({ message, type, id: Date.now() });
   }, []);
 

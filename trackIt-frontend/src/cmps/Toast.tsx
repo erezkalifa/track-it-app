@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import styled, { keyframes, css } from "styled-components";
+import styled, { keyframes } from "styled-components";
 import {
   FaCheckCircle,
   FaExclamationCircle,
@@ -64,21 +64,24 @@ const ToastContainer = styled.div<{ type: ToastType }>`
   display: flex;
   align-items: center;
   padding: 1rem;
-  border-radius: 8px;
-  background: ${({ theme, type }) => {
+  border-radius: 12px;
+  background: ${({ type }) => {
     switch (type) {
       case "success":
-        return theme.colors.success || "#4CAF50";
+        return "linear-gradient(135deg, #22c55e 0%, #22c55edd 100%)";
       case "error":
-        return theme.colors.error || "#f44336";
+        return "linear-gradient(135deg, #ef4444 0%, #ef4444dd 100%)";
       case "info":
-        return theme.colors.info || "#2196F3";
+        return "linear-gradient(135deg, #3b82f6 0%, #3b82f6dd 100%)";
       default:
-        return theme.colors.primary;
+        return "linear-gradient(135deg, #6366f1 0%, #6366f1dd 100%)";
     }
   }};
   color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   z-index: 1200;
   animation: ${slideIn} 0.3s ease-out;
   min-width: 300px;
@@ -90,6 +93,7 @@ const IconWrapper = styled.div`
   font-size: 1.25rem;
   display: flex;
   align-items: center;
+  opacity: 0.9;
 `;
 
 const Message = styled.p`
@@ -99,20 +103,26 @@ const Message = styled.p`
 `;
 
 const CloseButton = styled.button`
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
   color: white;
   cursor: pointer;
-  padding: 0;
+  padding: 0.25rem;
   margin-left: 0.75rem;
   display: flex;
   align-items: center;
-  font-size: 1.25rem;
+  justify-content: center;
+  font-size: 1rem;
   opacity: 0.8;
-  transition: opacity 0.2s;
+  transition: all 0.2s ease;
+  min-width: 24px;
+  min-height: 24px;
 
   &:hover {
     opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
   }
 `;
 
@@ -129,6 +139,8 @@ const Toast: React.FC<ToastProps> = ({
 
     return () => clearTimeout(timer);
   }, [duration, onClose]);
+
+  console.log("Toast rendered with type:", type, "message:", message);
 
   return (
     <ToastContainer type={type}>
