@@ -90,7 +90,9 @@ const MobileFilterModal = styled.div<{ $isOpen: boolean }>`
 
   /* Hide on desktop */
   @media (min-width: 769px) {
-    display: none;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
   }
 `;
 
@@ -1100,143 +1102,149 @@ export const FilterBar = ({
       </FilterBarContainer>
 
       {/* Mobile Filter Modal */}
-      <MobileFilterModal
-        $isOpen={isMobileModalOpen}
-        onClick={handleMobileFilterClose}
-      >
-        <MobileFilterSheet
+      {isMobileModalOpen && (
+        <MobileFilterModal
           $isOpen={isMobileModalOpen}
-          onClick={(e) => e.stopPropagation()}
+          onClick={handleMobileFilterClose}
         >
-          <MobileFilterHeader>
-            <h3>Filters</h3>
-            <button onClick={handleMobileFilterClose}>
-              <FaTimes />
-            </button>
-          </MobileFilterHeader>
+          <MobileFilterSheet
+            $isOpen={isMobileModalOpen}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MobileFilterHeader>
+              <h3>Filters</h3>
+              <button onClick={handleMobileFilterClose}>
+                <FaTimes />
+              </button>
+            </MobileFilterHeader>
 
-          {/* Active Filters - moved to top */}
-          {(filters.company || filters.position || filters.status) && (
-            <MobileActiveFilters>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "1rem",
-                }}
-              >
-                <h4>Active Filters</h4>
-                <MobileResetLink onClick={handleMobileResetAll}>
-                  <FaUndo />
-                  Reset All
-                </MobileResetLink>
-              </div>
-              <div>
-                {filters.company && (
-                  <MobileActiveFilterChip>
-                    Company: {filters.company}
-                    <button onClick={() => handleMobileFilterRemove("company")}>
-                      <FaTimes />
-                    </button>
-                  </MobileActiveFilterChip>
-                )}
-                {filters.position && (
-                  <MobileActiveFilterChip>
-                    Position: {filters.position}
-                    <button
-                      onClick={() => handleMobileFilterRemove("position")}
+            {/* Active Filters - moved to top */}
+            {(filters.company || filters.position || filters.status) && (
+              <MobileActiveFilters>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  <h4>Active Filters</h4>
+                  <MobileResetLink onClick={handleMobileResetAll}>
+                    <FaUndo />
+                    Reset All
+                  </MobileResetLink>
+                </div>
+                <div>
+                  {filters.company && (
+                    <MobileActiveFilterChip>
+                      Company: {filters.company}
+                      <button
+                        onClick={() => handleMobileFilterRemove("company")}
+                      >
+                        <FaTimes />
+                      </button>
+                    </MobileActiveFilterChip>
+                  )}
+                  {filters.position && (
+                    <MobileActiveFilterChip>
+                      Position: {filters.position}
+                      <button
+                        onClick={() => handleMobileFilterRemove("position")}
+                      >
+                        <FaTimes />
+                      </button>
+                    </MobileActiveFilterChip>
+                  )}
+                  {filters.status && (
+                    <MobileActiveFilterChip>
+                      Status: {filters.status}
+                      <button
+                        onClick={() => handleMobileFilterRemove("status")}
+                      >
+                        <FaTimes />
+                      </button>
+                    </MobileActiveFilterChip>
+                  )}
+                </div>
+              </MobileActiveFilters>
+            )}
+
+            {/* Company Filter */}
+            <MobileFilterSection>
+              <h4>
+                <FaBuilding />
+                Company
+              </h4>
+              <MobileSearchInput
+                type="text"
+                placeholder="Search companies..."
+                value={mobileSearchTerms.company}
+                onChange={(e) =>
+                  handleMobileSearchChange("company", e.target.value)
+                }
+                onKeyDown={handleMobileKeyDown}
+              />
+            </MobileFilterSection>
+
+            {/* Position Filter */}
+            <MobileFilterSection>
+              <h4>
+                <FaBriefcase />
+                Position
+              </h4>
+              <MobileSearchInput
+                type="text"
+                placeholder="Search positions..."
+                value={mobileSearchTerms.position}
+                onChange={(e) =>
+                  handleMobileSearchChange("position", e.target.value)
+                }
+                onKeyDown={handleMobileKeyDown}
+              />
+            </MobileFilterSection>
+
+            {/* Status Filter */}
+            <MobileFilterSection>
+              <h4>
+                <FaChartLine />
+                Status
+              </h4>
+              <MobileStatusSelect>
+                <MobileStatusSelectButton
+                  $isOpen={isStatusDropdownOpen}
+                  onClick={handleMobileStatusToggle}
+                  ref={statusButtonRef}
+                >
+                  {filters.status || "Select status"}
+                  <FaChevronDown />
+                </MobileStatusSelectButton>
+                <MobileStatusDropdown
+                  $isOpen={isStatusDropdownOpen}
+                  ref={statusDropdownRef}
+                >
+                  {statusOptions.map((status) => (
+                    <MobileStatusDropdownOption
+                      key={status.value}
+                      $isSelected={filters.status === status.value}
+                      onClick={() => handleMobileStatusSelect(status.value)}
                     >
-                      <FaTimes />
-                    </button>
-                  </MobileActiveFilterChip>
-                )}
-                {filters.status && (
-                  <MobileActiveFilterChip>
-                    Status: {filters.status}
-                    <button onClick={() => handleMobileFilterRemove("status")}>
-                      <FaTimes />
-                    </button>
-                  </MobileActiveFilterChip>
-                )}
-              </div>
-            </MobileActiveFilters>
-          )}
+                      {status.label}
+                    </MobileStatusDropdownOption>
+                  ))}
+                </MobileStatusDropdown>
+              </MobileStatusSelect>
+            </MobileFilterSection>
 
-          {/* Company Filter */}
-          <MobileFilterSection>
-            <h4>
-              <FaBuilding />
-              Company
-            </h4>
-            <MobileSearchInput
-              type="text"
-              placeholder="Search companies..."
-              value={mobileSearchTerms.company}
-              onChange={(e) =>
-                handleMobileSearchChange("company", e.target.value)
-              }
-              onKeyDown={handleMobileKeyDown}
-            />
-          </MobileFilterSection>
-
-          {/* Position Filter */}
-          <MobileFilterSection>
-            <h4>
-              <FaBriefcase />
-              Position
-            </h4>
-            <MobileSearchInput
-              type="text"
-              placeholder="Search positions..."
-              value={mobileSearchTerms.position}
-              onChange={(e) =>
-                handleMobileSearchChange("position", e.target.value)
-              }
-              onKeyDown={handleMobileKeyDown}
-            />
-          </MobileFilterSection>
-
-          {/* Status Filter */}
-          <MobileFilterSection>
-            <h4>
-              <FaChartLine />
-              Status
-            </h4>
-            <MobileStatusSelect>
-              <MobileStatusSelectButton
-                $isOpen={isStatusDropdownOpen}
-                onClick={handleMobileStatusToggle}
-                ref={statusButtonRef}
-              >
-                {filters.status || "Select status"}
-                <FaChevronDown />
-              </MobileStatusSelectButton>
-              <MobileStatusDropdown
-                $isOpen={isStatusDropdownOpen}
-                ref={statusDropdownRef}
-              >
-                {statusOptions.map((status) => (
-                  <MobileStatusDropdownOption
-                    key={status.value}
-                    $isSelected={filters.status === status.value}
-                    onClick={() => handleMobileStatusSelect(status.value)}
-                  >
-                    {status.label}
-                  </MobileStatusDropdownOption>
-                ))}
-              </MobileStatusDropdown>
-            </MobileStatusSelect>
-          </MobileFilterSection>
-
-          {/* Action Buttons */}
-          <MobileFilterActions>
-            <MobileActionButton onClick={handleMobileFilterClose}>
-              Close
-            </MobileActionButton>
-          </MobileFilterActions>
-        </MobileFilterSheet>
-      </MobileFilterModal>
+            {/* Action Buttons */}
+            <MobileFilterActions>
+              <MobileActionButton onClick={handleMobileFilterClose}>
+                Close
+              </MobileActionButton>
+            </MobileFilterActions>
+          </MobileFilterSheet>
+        </MobileFilterModal>
+      )}
     </>
   );
 };
