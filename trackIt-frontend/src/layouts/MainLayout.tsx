@@ -5,11 +5,7 @@ import Navbar from "../cmps/Navbar";
 
 const LayoutContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(
-    135deg,
-    ${({ theme }) => theme.colors.backgroundStart} 0%,
-    ${({ theme }) => theme.colors.backgroundEnd} 100%
-  );
+  background: #fafbfc;
   display: flex;
   flex-direction: column;
 `;

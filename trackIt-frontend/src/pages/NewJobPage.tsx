@@ -5,10 +5,7 @@ import {
   FaBriefcase,
   FaFileAlt,
   FaCloudUploadAlt,
-  FaEye,
-  FaDownload,
   FaTrash,
-  FaFolder,
   FaTimes,
 } from "react-icons/fa";
 import { JobStatus, type Job } from "../types/types";
@@ -16,33 +13,84 @@ import { api } from "../api/config.js";
 import { useJobs } from "../context/JobContext";
 import { useAuth } from "../context/AuthContext";
 
+// Overall container with light neutral background
 const PageContainer = styled.div`
-  display: grid;
-  grid-template-columns: minmax(350px, 2fr) minmax(600px, 3fr);
-  gap: 2rem;
+  min-height: 100vh;
+  background: #fafbfc; // Cream-white background
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
 
-  /* Tablet styles */
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    padding: 1rem 0.5rem;
+  }
+`;
+
+// Centered card with max-width and generous margin
+const CardContainer = styled.div`
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 600px;
+  width: 100%;
+  overflow: hidden;
+`;
+
+// Tabs navigation
+const TabContainer = styled.div`
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+`;
+
+const TabButton = styled.button<{ $isActive: boolean }>`
+  flex: 1;
+  padding: 1rem 1.5rem;
+  background: ${({ $isActive }) => ($isActive ? "#ffffff" : "#f8fafc")};
+  border: none;
+  border-bottom: 3px solid
+    ${({ $isActive, theme }) =>
+      $isActive ? theme.colors.primary : "transparent"};
+  color: ${({ $isActive, theme }) =>
+    $isActive ? theme.colors.primary : theme.colors.textLight};
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  &:hover {
+    background: ${({ $isActive }) => ($isActive ? "#ffffff" : "#f1f5f9")};
+    color: ${({ theme }) => theme.colors.primary};
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
+
+  svg {
+    font-size: 1rem;
   }
 
   /* Mobile styles */
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+
+    svg {
+      font-size: 0.875rem;
+    }
   }
 `;
 
-const CardContainer = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
+// Tab content container
+const TabContent = styled.div`
   padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  height: fit-content;
 
   /* Mobile styles */
   @media (max-width: 768px) {
@@ -50,188 +98,74 @@ const CardContainer = styled.div`
   }
 `;
 
-// Mobile Resume Modal
-const MobileResumeModal = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 2000;
+// Section header
+const SectionHeader = styled.h2`
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 1.5rem 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
-  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
-  transition: all 0.3s ease;
-  padding: 1rem;
+  gap: 0.5rem;
 
-  /* Hide on desktop */
-  @media (min-width: 769px) {
-    display: none;
-  }
-`;
-
-const MobileResumeSheet = styled.div<{ $isOpen: boolean }>`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 1.5rem;
-  width: 100%;
-  max-width: 500px;
-  max-height: 80vh;
-  transform: scale(${({ $isOpen }) => ($isOpen ? "1" : "0.9")})
-    translateY(${({ $isOpen }) => ($isOpen ? "0" : "20px")});
-  transition: all 0.3s ease;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-`;
-
-const MobileResumeHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  padding-top: 0.5rem;
-
-  h3 {
+  svg {
     font-size: 1.25rem;
-    font-weight: 600;
-    color: #000;
-    margin: 0;
-  }
-
-  button {
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.05);
-    }
-
-    svg {
-      font-size: 1.25rem;
-    }
-  }
-`;
-
-// Mobile Resume Button
-const MobileResumeButton = styled.button`
-  width: 100%;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-
-  svg {
-    font-size: 1.125rem;
-  }
-
-  /* Hide on desktop */
-  @media (min-width: 769px) {
-    display: none;
-  }
-`;
-
-// Desktop Resume Container
-const DesktopResumeContainer = styled.div`
-  /* Hide on mobile */
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const CardHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  color: ${({ theme }) => theme.colors.text};
-
-  svg {
-    font-size: 1.5rem;
-    opacity: 0.8;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0;
+    color: ${({ theme }) => theme.colors.primary};
   }
 
   /* Mobile styles */
   @media (max-width: 768px) {
-    margin-bottom: 1.5rem;
-
-    h2 {
-      font-size: 1.25rem;
-    }
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
 
     svg {
-      font-size: 1.25rem;
+      font-size: 1.125rem;
     }
   }
 `;
 
+// Form group with consistent spacing
 const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 
   label {
     display: block;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     font-weight: 500;
-    color: ${({ theme }) => theme.colors.textLight};
-    margin-bottom: 0.75rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
   }
 
   /* Mobile styles */
   @media (max-width: 768px) {
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.875rem;
 
     label {
-      font-size: 0.875rem;
-      margin-bottom: 0.5rem;
+      font-size: 0.8125rem;
+      margin-bottom: 0.375rem;
     }
   }
 `;
 
+// Input styles
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem;
-  font-size: 0.9375rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: ${({ theme }) => theme.colors.text};
+  font-size: 0.875rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #334155;
   transition: all 0.2s ease;
 
-  &:hover,
+  &:hover {
+    border-color: #cbd5e1;
+  }
+
   &:focus {
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: ${({ theme }) => theme.colors.primary};
     outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
 
   /* Mobile styles */
@@ -244,27 +178,29 @@ const Input = styled.input`
 const Select = styled.select`
   width: 100%;
   padding: 0.75rem;
-  font-size: 0.9375rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: ${({ theme }) => theme.colors.text};
+  font-size: 0.875rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #334155;
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover,
+  &:hover {
+    border-color: #cbd5e1;
+  }
+
   &:focus {
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: ${({ theme }) => theme.colors.primary};
     outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
 
   option {
     background: white;
-    color: #1a1a1a;
+    color: #334155;
     padding: 12px;
-    font-size: 0.9375rem;
-    line-height: 1.5;
+    font-size: 0.875rem;
   }
 
   /* Mobile styles */
@@ -277,20 +213,23 @@ const Select = styled.select`
 const TextArea = styled.textarea`
   width: 100%;
   padding: 0.75rem;
-  font-size: 0.9375rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: ${({ theme }) => theme.colors.text};
+  font-size: 0.875rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #334155;
   min-height: 100px;
   resize: vertical;
   transition: all 0.2s ease;
 
-  &:hover,
+  &:hover {
+    border-color: #cbd5e1;
+  }
+
   &:focus {
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: ${({ theme }) => theme.colors.primary};
     outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
   }
 
   /* Mobile styles */
@@ -301,37 +240,51 @@ const TextArea = styled.textarea`
   }
 `;
 
+// Side-by-side layout for status and date
+const Row = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+  }
+`;
+
+// Upload area for resume tab
 const UploadArea = styled.div`
-  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border: 2px dashed #cbd5e1;
   border-radius: 12px;
   padding: 2rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.02);
+    border-color: ${({ theme }) => theme.colors.primary};
+    background: #f8fafc;
   }
 
   svg {
-    font-size: 2rem;
+    font-size: 2.5rem;
     color: ${({ theme }) => theme.colors.primary};
     margin-bottom: 1rem;
   }
 
   h3 {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 500;
     margin: 0.5rem 0;
-    color: ${({ theme }) => theme.colors.text};
+    color: #334155;
   }
 
   p {
     font-size: 0.875rem;
-    color: ${({ theme }) => theme.colors.textLight};
-    margin: 0;
+    color: #64748b;
+    margin: 0.25rem 0;
   }
 
   /* Mobile styles */
@@ -339,11 +292,11 @@ const UploadArea = styled.div`
     padding: 1.5rem;
 
     svg {
-      font-size: 1.75rem;
+      font-size: 2rem;
     }
 
     h3 {
-      font-size: 1rem;
+      font-size: 0.9375rem;
     }
 
     p {
@@ -352,71 +305,23 @@ const UploadArea = styled.div`
   }
 `;
 
-const SubmitButton = styled.button`
+// Browse files button
+const BrowseButton = styled.button`
   width: 100%;
-  padding: 1rem;
-  background: ${({ theme }) => theme.colors.primary};
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 2rem;
 
   &:hover {
-    opacity: 0.95;
-    transform: translateY(-1px);
-  }
-
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    padding: 1.125rem;
-    font-size: 1.125rem;
-    margin-top: 1.5rem;
-  }
-`;
-
-const ErrorMessage = styled.div`
-  color: ${({ theme }) => theme.colors.danger};
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  text-align: center;
-`;
-
-const DateInput = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 0.9375rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: ${({ theme }) => theme.colors.text};
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-    opacity: 0.6;
-    cursor: pointer;
-  }
-
-  &:hover,
-  &:focus {
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.08);
-    outline: none;
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
   }
 
   /* Mobile styles */
@@ -426,20 +331,23 @@ const DateInput = styled.input`
   }
 `;
 
+// Selected file container
 const SelectedFileContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.05);
+  background: #f8fafc;
   padding: 0.75rem 1rem;
   border-radius: 8px;
   margin-top: 1rem;
+  border: 1px solid #e2e8f0;
 `;
 
 const FileName = styled.p`
   margin: 0;
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 0.9375rem;
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 500;
 `;
 
 const RemoveButton = styled.button`
@@ -451,18 +359,76 @@ const RemoveButton = styled.button`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   transition: all 0.2s ease;
+  border-radius: 4px;
 
   &:hover {
-    opacity: 0.8;
+    background: #fef2f2;
+  }
+
+  svg {
+    font-size: 0.875rem;
   }
 `;
+
+// Submit button aligned bottom right
+const SubmitButton = styled.button`
+  padding: 0.875rem 2rem;
+  background: ${({ theme }) => theme.colors.primary};
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  margin-left: auto; // Align to the right
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.primaryDark};
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    margin-top: 1.5rem;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  color: ${({ theme }) => theme.colors.danger};
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  text-align: center;
+  background: #fef2f2;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+`;
+
+// Tab types
+type TabType = "details" | "resume";
 
 const NewJobPage: React.FC = () => {
   const navigate = useNavigate();
   const { jobs, setJobs } = useJobs();
   const { isGuest } = useAuth();
+  const [activeTab, setActiveTab] = useState<TabType>("details");
   const [formData, setFormData] = useState({
     company: "",
     position: "",
@@ -473,7 +439,6 @@ const NewJobPage: React.FC = () => {
   const [resume, setResume] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isMobileResumeOpen, setIsMobileResumeOpen] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -585,175 +550,166 @@ const NewJobPage: React.FC = () => {
     }
   };
 
-  const handleMobileResumeOpen = () => {
-    setIsMobileResumeOpen(true);
-  };
-
-  const handleMobileResumeClose = () => {
-    setIsMobileResumeOpen(false);
+  const handleFileUpload = () => {
+    const fileInput = document.getElementById("resume") as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
   };
 
   return (
     <PageContainer>
       <CardContainer>
-        <CardHeader>
-          <FaBriefcase />
-          <h2>New Job Application</h2>
-        </CardHeader>
-
-        <form onSubmit={handleSubmit}>
-          <FormGroup>
-            <label htmlFor="company">Company</label>
-            <Input
-              type="text"
-              id="company"
-              name="company"
-              value={formData.company}
-              onChange={handleInputChange}
-              required
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <label htmlFor="position">Position</label>
-            <Input
-              type="text"
-              id="position"
-              name="position"
-              value={formData.position}
-              onChange={handleInputChange}
-              required
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <label htmlFor="status">Application Status</label>
-            <Select
-              id="status"
-              name="status"
-              value={formData.status}
-              onChange={handleInputChange}
-            >
-              {Object.values(JobStatus).map((status) => (
-                <option key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </option>
-              ))}
-            </Select>
-          </FormGroup>
-
-          <FormGroup>
-            <label htmlFor="applied_date">Applied Date</label>
-            <DateInput
-              type="date"
-              id="applied_date"
-              name="applied_date"
-              value={formData.applied_date}
-              onChange={handleInputChange}
-              max={new Date().toISOString().split("T")[0]}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <label htmlFor="notes">Notes</label>
-            <TextArea
-              id="notes"
-              name="notes"
-              value={formData.notes}
-              onChange={handleInputChange}
-              placeholder="Add any relevant notes about the position..."
-            />
-          </FormGroup>
-
-          {/* Mobile Resume Button */}
-          <MobileResumeButton type="button" onClick={handleMobileResumeOpen}>
+        {/* Tabs Navigation */}
+        <TabContainer>
+          <TabButton
+            $isActive={activeTab === "details"}
+            onClick={() => setActiveTab("details")}
+          >
+            <FaBriefcase />
+            Job Details
+          </TabButton>
+          <TabButton
+            $isActive={activeTab === "resume"}
+            onClick={() => setActiveTab("resume")}
+          >
             <FaFileAlt />
-            Resume Versions
-          </MobileResumeButton>
+            Resume
+          </TabButton>
+        </TabContainer>
 
-          <SubmitButton type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create Job Application"}
-          </SubmitButton>
+        {/* Tab Content */}
+        <TabContent>
+          {activeTab === "details" && (
+            <form onSubmit={handleSubmit}>
+              <SectionHeader>
+                <FaBriefcase />
+                Job Details
+              </SectionHeader>
 
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-        </form>
+              {/* Company & Position - stacked inputs */}
+              <FormGroup>
+                <label htmlFor="company">Company</label>
+                <Input
+                  type="text"
+                  id="company"
+                  name="company"
+                  value={formData.company}
+                  onChange={handleInputChange}
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <label htmlFor="position">Position</label>
+                <Input
+                  type="text"
+                  id="position"
+                  name="position"
+                  value={formData.position}
+                  onChange={handleInputChange}
+                  required
+                />
+              </FormGroup>
+
+              {/* Status & Date picker - side-by-side */}
+              <Row>
+                <FormGroup>
+                  <label htmlFor="status">Application Status</label>
+                  <Select
+                    id="status"
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                  >
+                    {Object.values(JobStatus).map((status) => (
+                      <option key={status} value={status}>
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </option>
+                    ))}
+                  </Select>
+                </FormGroup>
+
+                <FormGroup>
+                  <label htmlFor="applied_date">Applied Date</label>
+                  <Input
+                    type="date"
+                    id="applied_date"
+                    name="applied_date"
+                    value={formData.applied_date}
+                    onChange={handleInputChange}
+                    max={new Date().toISOString().split("T")[0]}
+                  />
+                </FormGroup>
+              </Row>
+
+              {/* Notes - full-width textarea */}
+              <FormGroup>
+                <label htmlFor="notes">Notes</label>
+                <TextArea
+                  id="notes"
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  placeholder="Add any relevant notes about the position..."
+                />
+              </FormGroup>
+
+              {/* Action button - aligned bottom right */}
+              <SubmitButton type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Creating..." : "Create Job Application"}
+              </SubmitButton>
+
+              {error && <ErrorMessage>{error}</ErrorMessage>}
+            </form>
+          )}
+
+          {activeTab === "resume" && (
+            <div>
+              <SectionHeader>
+                <FaFileAlt />
+                Upload Resume
+              </SectionHeader>
+
+              {/* Upload zone */}
+              <label htmlFor="resume">
+                <UploadArea>
+                  <FaCloudUploadAlt />
+                  <h3>Drag and drop your resume here</h3>
+                  <p>or click to browse files</p>
+                  <p>Supported formats: PDF, DOC, DOCX</p>
+                </UploadArea>
+              </label>
+
+              {/* Hidden file input */}
+              <input
+                type="file"
+                id="resume"
+                name="resume"
+                onChange={handleFileChange}
+                accept=".pdf,.doc,.docx"
+                style={{ display: "none" }}
+              />
+
+              {/* Browse files button */}
+              <BrowseButton type="button" onClick={handleFileUpload}>
+                Browse Files
+              </BrowseButton>
+
+              {/* Selected file display */}
+              {resume && (
+                <SelectedFileContainer>
+                  <FileName>{resume.name}</FileName>
+                  <RemoveButton onClick={handleRemoveFile}>
+                    <FaTrash />
+                    Remove
+                  </RemoveButton>
+                </SelectedFileContainer>
+              )}
+            </div>
+          )}
+        </TabContent>
       </CardContainer>
-
-      {/* Desktop Resume Container */}
-      <DesktopResumeContainer>
-        <CardContainer>
-          <CardHeader>
-            <FaFileAlt />
-            <h2>Resume</h2>
-          </CardHeader>
-
-          <label htmlFor="resume">
-            <UploadArea>
-              <FaCloudUploadAlt />
-              <h3>Upload Resume</h3>
-              <p>Drag and drop your resume here or click to browse</p>
-              <p>Supported formats: PDF, DOC, DOCX</p>
-            </UploadArea>
-          </label>
-          <input
-            type="file"
-            id="resume"
-            name="resume"
-            onChange={handleFileChange}
-            accept=".pdf,.doc,.docx"
-            style={{ display: "none" }}
-          />
-
-          {resume && (
-            <SelectedFileContainer>
-              <FileName>{resume.name}</FileName>
-              <RemoveButton onClick={handleRemoveFile}>
-                <FaTrash />
-                Remove
-              </RemoveButton>
-            </SelectedFileContainer>
-          )}
-        </CardContainer>
-      </DesktopResumeContainer>
-
-      {/* Mobile Resume Modal */}
-      <MobileResumeModal $isOpen={isMobileResumeOpen}>
-        <MobileResumeSheet $isOpen={isMobileResumeOpen}>
-          <MobileResumeHeader>
-            <h3>Resume Versions</h3>
-            <button onClick={handleMobileResumeClose}>
-              <FaTimes />
-            </button>
-          </MobileResumeHeader>
-
-          <label htmlFor="mobile-resume">
-            <UploadArea>
-              <FaCloudUploadAlt />
-              <h3>Upload Resume</h3>
-              <p>Drag and drop your resume here or click to browse</p>
-              <p>Supported formats: PDF, DOC, DOCX</p>
-            </UploadArea>
-          </label>
-          <input
-            type="file"
-            id="mobile-resume"
-            name="resume"
-            onChange={handleFileChange}
-            accept=".pdf,.doc,.docx"
-            style={{ display: "none" }}
-          />
-
-          {resume && (
-            <SelectedFileContainer>
-              <FileName>{resume.name}</FileName>
-              <RemoveButton onClick={handleRemoveFile}>
-                <FaTrash />
-                Remove
-              </RemoveButton>
-            </SelectedFileContainer>
-          )}
-        </MobileResumeSheet>
-      </MobileResumeModal>
     </PageContainer>
   );
 };

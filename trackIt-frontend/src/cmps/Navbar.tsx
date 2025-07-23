@@ -6,241 +6,523 @@ import {
   Box,
   styled,
   Container,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+  Avatar,
 } from "@mui/material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import type { LinkProps } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { capitalizeFirstLetter } from "../utils/stringUtils";
 import { HowToUseModal } from "./HowToUseModal";
-import { FaQuestionCircle } from "react-icons/fa";
+import {
+  FaQuestionCircle,
+  FaBars,
+  FaTimes,
+  FaUser,
+  FaBriefcase,
+} from "react-icons/fa";
 
+// Navbar container with brand purple background
 const StyledAppBar = styled(AppBar)(() => ({
-  background: "rgba(255, 255, 255, 0.08)",
-  backdropFilter: "blur(12px)",
-  WebkitBackdropFilter: "blur(12px)",
-  borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.02)",
+  background: "#4F46E5",
+  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  borderBottom: "2px solid #6366F1",
+  position: "sticky",
+  top: 0,
+  zIndex: 1100,
 }));
 
+// Toolbar with proper height and padding
 const StyledToolbar = styled(Toolbar)(() => ({
-  padding: "0.75rem 0",
-  "@media (min-width: 600px)": {
-    padding: "0.75rem 0",
+  height: "64px",
+  padding: "0 24px",
+  "@media (max-width: 768px)": {
+    padding: "0 16px",
   },
 }));
 
+// Brand logo with white text and optional icon
+const LogoContainer = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const LogoIcon = styled(FaBriefcase)`
+  font-size: 20px;
+  color: #ffffff;
+`;
+
 const LogoText = styled("div")`
   font-weight: 700;
-  font-size: 2rem;
-  color: #6366f1;
-  letter-spacing: 0.5px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 2px 4px rgba(99, 102, 241, 0.1);
+  font-size: 24px;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
 `;
 
 const LogoLink = styled(RouterLink)`
   text-decoration: none;
-  padding: 0.25rem 0;
-`;
-
-const LogoSection = styled(Box)`
+  padding: 8px 12px;
   display: flex;
   align-items: center;
-  gap: 2.5rem;
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &:focus {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
 `;
 
-const HowToUseButton = styled("button")`
-  color: rgba(99, 102, 241, 0.8);
-  font-size: 0.9375rem;
+// Navigation section with proper spacing
+const NavSection = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: 24px;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+// Navigation links with white text and hover states
+const NavLink = styled(RouterLink)`
+  color: #ffffff;
+  font-size: 17px;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
+  padding: 12px 20px;
+  border-radius: 12px;
+  min-height: 44px;
+  min-width: 44px;
   position: relative;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+
+  &:focus {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
+
+  &.active {
+    background: rgba(255, 255, 255, 0.15);
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 3px;
+      background: #ffffff;
+      border-radius: 2px;
+    }
+  }
+`;
+
+// How to use button with white styling
+const HowToUseButton = styled("button")`
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
   background: none;
   border: none;
   cursor: pointer;
-
-  &::after {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: 0;
-    left: 0;
-    background-color: #6366f1;
-    transition: width 0.3s ease;
-  }
+  border-radius: 12px;
+  min-height: 44px;
+  min-width: 44px;
+  position: relative;
 
   &:hover {
-    color: #6366f1;
-
-    &::after {
-      width: 100%;
-    }
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
   }
 
-  /* Hide text on small screens, show only icon */
-  @media (max-width: 445px) {
-    .how-to-use-text {
-      display: none;
-    }
+  &:focus {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
 
-    gap: 0;
-    padding: 0.5rem;
-    border-radius: 50%;
-    background: rgba(99, 102, 241, 0.1);
-
-    &:hover {
-      background: rgba(99, 102, 241, 0.15);
-    }
-
-    &::after {
-      display: none;
-    }
+  &:active {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(0);
   }
 `;
 
 const QuestionIcon = styled(FaQuestionCircle)`
-  font-size: 1.125rem;
-  color: inherit;
-
-  /* Larger icon on small screens */
-  @media (max-width: 445px) {
-    font-size: 1.25rem;
-  }
+  font-size: 16px;
+  color: #ffffff;
 `;
 
-const NavLink = styled(RouterLink)`
-  color: rgba(99, 102, 241, 0.8);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  text-decoration: none;
-  margin-left: 1.5rem;
-  transition: all 0.2s ease;
+// User section aligned to the right
+const UserSection = styled(Box)`
   display: flex;
   align-items: center;
-  padding: 0.5rem 0;
+  margin-left: auto;
+  gap: 16px;
 
-  &:hover {
-    color: #6366f1;
+  @media (max-width: 768px) {
+    display: none;
   }
 `;
 
-const NavButtonsContainer = styled(Box)(() => ({
-  display: "flex",
-  alignItems: "center",
-  gap: "0.5rem",
-  marginLeft: "auto",
-}));
+// Vertical divider with white styling
+const VerticalDivider = styled(Box)`
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.3);
+  margin: 0 16px;
+`;
 
+// User container with white styling
 const UserContainer = styled(Box)`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-left: 2rem;
-  padding: 0.5rem 0;
+  gap: 12px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+  }
 `;
 
+// User avatar with white border
+const UserAvatar = styled(Avatar)`
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.05);
+  }
+`;
+
+// User greeting text in white
 const UserGreeting = styled(Typography)`
-  color: #7c3aed;
-  font-size: 0.9375rem;
+  color: #ffffff;
+  font-size: 17px;
   font-weight: 500;
   display: flex;
   align-items: center;
+  gap: 4px;
 `;
 
 const Username = styled("span")`
-  font-weight: 500;
-  color: #7c3aed;
-  margin: 0 1px;
+  font-weight: 600;
+  color: #ffffff;
 `;
 
-const LogoutButton = styled("span")`
-  color: rgba(139, 92, 246, 0.8);
+// Logout button with white styling
+const LogoutButton = styled("button")`
+  color: rgba(255, 255, 255, 0.8);
+  background: none;
+  border: none;
   cursor: pointer;
-  padding: 0.25rem;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
   transition: all 0.2s ease;
-  margin-left: 0;
-  font-size: 0.875rem;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 
   &:hover {
-    color: #8b5cf6;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-thickness: 1px;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
   }
+
+  &:focus {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+// Mobile menu button with white styling
+const MobileMenuButton = styled(IconButton)`
+  display: none;
+  color: #ffffff;
+  padding: 8px;
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+
+  &:focus {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
+`;
+
+// Mobile drawer with brand purple styling
+const MobileDrawer = styled(Drawer)`
+  .MuiDrawer-paper {
+    width: 300px;
+    padding: 24px 16px;
+    background: #4f46e5;
+    border-left: 2px solid #6366f1;
+  }
+`;
+
+// Mobile menu header
+const MobileMenuHeader = styled(Box)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+`;
+
+const MobileMenuTitle = styled(Typography)`
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+`;
+
+// Mobile menu item with white styling
+const MobileMenuItem = styled(ListItem)`
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  min-height: 44px;
+  transition: all 0.2s ease;
+  color: #ffffff;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.15);
+  }
+`;
+
+const MobileMenuItemText = styled(ListItemText)`
+  .MuiListItemText-primary {
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 500;
+  }
+`;
+
+// Mobile user section
+const MobileUserSection = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  margin-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
 const Navbar = (): JSX.Element => {
   const { isAuthenticated, logout, user, isGuest } = useAuth();
   const navigate = useNavigate();
   const [isHowToUseOpen, setIsHowToUseOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleHowToUse = () => {
+    setIsHowToUseOpen(true);
+    setIsMobileMenuOpen(false);
   };
 
   const displayName = isGuest
     ? "Guest"
     : capitalizeFirstLetter(user?.username || "User");
 
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((word) => word.charAt(0))
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const mobileMenuItems = [
+    {
+      text: "How To Use",
+      onClick: handleHowToUse,
+      icon: <FaQuestionCircle />,
+    },
+    ...(isAuthenticated
+      ? [
+          {
+            text: "Logout",
+            onClick: handleLogout,
+          },
+        ]
+      : [
+          {
+            text: "Login",
+            onClick: () => {
+              navigate("/login");
+              setIsMobileMenuOpen(false);
+            },
+          },
+          {
+            text: "Sign Up",
+            onClick: () => {
+              navigate("/signup");
+              setIsMobileMenuOpen(false);
+            },
+          },
+        ]),
+  ];
+
   return (
     <>
       <StyledAppBar position="sticky">
-        <Container
-          maxWidth={false}
-          sx={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            padding: "0 1rem",
-            "@media (min-width: 640px)": {
-              padding: "0 2rem",
-            },
-            "@media (min-width: 1024px)": {
-              padding: "0",
-            },
-            "@media (max-width: 399px)": {
-              padding: "0 0.75rem",
-            },
-          }}
-        >
-          <StyledToolbar disableGutters>
-            <LogoSection>
-              <LogoLink to="/">
-                <LogoText>TrackIt</LogoText>
-              </LogoLink>
-              <HowToUseButton onClick={() => setIsHowToUseOpen(true)}>
-                <QuestionIcon />
-                <span className="how-to-use-text">How To Use</span>
-              </HowToUseButton>
-            </LogoSection>
+        <StyledToolbar disableGutters>
+          {/* Logo with icon */}
+          <LogoLink to="/">
+            <LogoContainer>
+              <LogoIcon />
+              <LogoText>TrackIt</LogoText>
+            </LogoContainer>
+          </LogoLink>
 
-            <NavButtonsContainer>
-              {isAuthenticated ? (
+          {/* Desktop Navigation */}
+          <NavSection>
+            <HowToUseButton onClick={handleHowToUse}>
+              <QuestionIcon />
+              How To Use
+            </HowToUseButton>
+          </NavSection>
+
+          {/* Desktop User Section */}
+          <UserSection>
+            {isAuthenticated ? (
+              <>
                 <UserContainer>
+                  <UserAvatar>{getInitials(displayName)}</UserAvatar>
                   <UserGreeting>
                     Hey, <Username>{displayName}</Username>
-                    <LogoutButton onClick={handleLogout}>(logout)</LogoutButton>
                   </UserGreeting>
                 </UserContainer>
-              ) : (
-                <>
-                  <NavLink to="/login">Login</NavLink>
-                  <NavLink to="/signup">Sign Up</NavLink>
-                </>
-              )}
-            </NavButtonsContainer>
-          </StyledToolbar>
-        </Container>
+                <VerticalDivider />
+                <LogoutButton onClick={handleLogout}>logout</LogoutButton>
+              </>
+            ) : (
+              <>
+                <NavLink to="/login">Login</NavLink>
+                <NavLink to="/signup">Sign Up</NavLink>
+              </>
+            )}
+          </UserSection>
+
+          {/* Mobile Menu Button */}
+          <MobileMenuButton
+            onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Open menu"
+          >
+            <FaBars />
+          </MobileMenuButton>
+        </StyledToolbar>
       </StyledAppBar>
+
+      {/* Mobile Menu Drawer */}
+      <MobileDrawer
+        anchor="right"
+        open={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      >
+        <MobileMenuHeader>
+          <MobileMenuTitle>Menu</MobileMenuTitle>
+          <IconButton
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close menu"
+            sx={{
+              color: "#FFFFFF",
+              "&:hover": {
+                background: "rgba(255, 255, 255, 0.2)",
+              },
+            }}
+          >
+            <FaTimes />
+          </IconButton>
+        </MobileMenuHeader>
+
+        <List>
+          {mobileMenuItems.map((item, index) => (
+            <MobileMenuItem key={index} onClick={item.onClick}>
+              <MobileMenuItemText primary={item.text} />
+            </MobileMenuItem>
+          ))}
+        </List>
+
+        {/* Mobile User Section */}
+        {isAuthenticated && (
+          <MobileUserSection>
+            <UserAvatar>{getInitials(displayName)}</UserAvatar>
+            <UserGreeting>
+              Hey, <Username>{displayName}</Username>
+            </UserGreeting>
+          </MobileUserSection>
+        )}
+      </MobileDrawer>
 
       <HowToUseModal
         isOpen={isHowToUseOpen}

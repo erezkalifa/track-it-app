@@ -20,7 +20,7 @@ const PageContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #a5b4fc 0%, #f0abfc 100%);
+  background: #fafbfc;
 `;
 
 const LoginCard = styled.div`
