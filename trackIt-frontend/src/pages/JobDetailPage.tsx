@@ -20,6 +20,7 @@ import {
   FaBookmark,
   FaRegBookmark,
   FaPencilAlt,
+  FaArrowLeft,
 } from "react-icons/fa";
 import { JobStatus } from "../types/types";
 import type { Job } from "../types/types";
@@ -28,55 +29,40 @@ import { api } from "../api/config.js";
 import { useJobs } from "../context/JobContext";
 import { useAuth } from "../context/AuthContext";
 
+// Main container with centered layout
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background: #fafbfc;
 
-  /* Mobile styles */
   @media (max-width: 768px) {
-    gap: 1rem;
-  }
-
-  /* Small mobile styles */
-  @media (max-width: 399px) {
-    gap: 0.75rem;
+    padding: 1rem 0.5rem;
   }
 `;
 
+// Single centered container
+const MainContainer = styled.div`
+  width: 100%;
+  max-width: 700px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+`;
+
+// Header with back button and save
 const HeaderContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 2rem;
-  margin-bottom: 1rem;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
 
-  /* Mobile styles */
   @media (max-width: 768px) {
-    gap: 1rem;
-    margin-bottom: 0.5rem;
-  }
-
-  /* Small mobile styles */
-  @media (max-width: 399px) {
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-`;
-
-const HeaderActions = styled.div`
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    gap: 0.5rem;
-  }
-
-  /* Small mobile styles */
-  @media (max-width: 399px) {
-    gap: 0.25rem;
+    padding: 1rem 1.5rem;
   }
 `;
 
@@ -84,693 +70,339 @@ const BackButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 0.9375rem;
+  padding: 0.75rem 1rem;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 
-  span {
-    font-size: 1.25rem;
-    line-height: 1;
-  }
-
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: #e5e7eb;
+    border-color: #d1d5db;
   }
 
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    padding: 0.625rem 1rem;
-    font-size: 0.875rem;
-
-    span {
-      font-size: 1.125rem;
-    }
-  }
-
-  /* Small mobile styles */
-  @media (max-width: 399px) {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.75rem;
-    white-space: nowrap;
-
-    span {
-      font-size: 1rem;
-    }
+  svg {
+    font-size: 14px;
   }
 `;
 
 const SaveButton = styled.button<{ $isSaved: boolean }>`
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.25rem;
-  background: ${({ $isSaved }) =>
-    $isSaved
-      ? "rgba(var(--color-primary-rgb), 0.15)"
-      : "rgba(255, 255, 255, 0.05)"};
-  border: 1px solid
-    ${({ $isSaved }) =>
-      $isSaved
-        ? "rgba(var(--color-primary-rgb), 0.3)"
-        : "rgba(255, 255, 255, 0.1)"};
-  border-radius: 12px;
-  color: ${({ theme, $isSaved }) =>
-    $isSaved ? theme.colors.primary : theme.colors.text};
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: ${({ $isSaved }) => ($isSaved ? "default" : "pointer")};
-  transition: all 0.2s ease;
-  pointer-events: ${({ $isSaved }) => ($isSaved ? "none" : "auto")};
-
-  svg {
-    font-size: 1rem;
-    color: ${({ theme, $isSaved }) =>
-      $isSaved ? theme.colors.primary : theme.colors.textLight};
-  }
-
-  &:hover {
-    background: ${({ $isSaved }) =>
-      $isSaved
-        ? "rgba(var(--color-primary-rgb), 0.15)"
-        : "rgba(255, 255, 255, 0.08)"};
-    border-color: ${({ $isSaved }) =>
-      $isSaved
-        ? "rgba(var(--color-primary-rgb), 0.3)"
-        : "rgba(255, 255, 255, 0.15)"};
-  }
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    padding: 0.625rem 1rem;
-    font-size: 0.875rem;
-    gap: 0.5rem;
-
-    svg {
-      font-size: 0.875rem;
-    }
-  }
-
-  /* Small mobile styles */
-  @media (max-width: 399px) {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.75rem;
-    gap: 0.375rem;
-    white-space: nowrap;
-
-    svg {
-      font-size: 0.75rem;
-    }
-  }
-`;
-
-const CardsContainer = styled.div`
-  display: grid;
-  grid-template-columns: minmax(350px, 2fr) minmax(600px, 3fr);
-  gap: 2rem;
-
-  /* Tablet styles */
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-`;
-
-const CardContainer = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  height: fit-content;
-  min-width: 400px;
-  width: 100%;
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    padding: 1.5rem;
-    min-width: unset;
-  }
-
-  /* Small mobile styles */
-  @media (max-width: 399px) {
-    padding: 1rem;
-    border-radius: 12px;
-  }
-`;
-
-// Mobile Resume Modal
-const MobileResumeModal = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 2000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
-  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
-  transition: all 0.3s ease;
-  padding: 1rem;
-
-  /* Hide on desktop */
-  @media (min-width: 769px) {
-    display: none;
-  }
-`;
-
-const MobileResumeSheet = styled.div<{ $isOpen: boolean }>`
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 1.5rem;
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  transform: scale(${({ $isOpen }) => ($isOpen ? "1" : "0.9")})
-    translateY(${({ $isOpen }) => ($isOpen ? "0" : "20px")});
-  transition: all 0.3s ease;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-`;
-
-const MobileResumeHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  padding-top: 0.5rem;
-
-  h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #000;
-    margin: 0;
-  }
-
-  button {
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.05);
-    }
-
-    svg {
-      font-size: 1.25rem;
-    }
-  }
-`;
-
-// Mobile Resume Button
-const MobileResumeButton = styled.button`
-  width: 100%;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 1rem;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: ${({ $isSaved }) => ($isSaved ? "#4F46E5" : "#F3F4F6")};
+  border: 1px solid ${({ $isSaved }) => ($isSaved ? "#4F46E5" : "#E5E7EB")};
+  border-radius: 8px;
+  color: ${({ $isSaved }) => ($isSaved ? "#FFFFFF" : "#374151")};
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: ${({ $isSaved }) => ($isSaved ? "#4338CA" : "#E5E7EB")};
   }
 
   svg {
-    font-size: 1.125rem;
-  }
-
-  /* Hide on desktop */
-  @media (min-width: 769px) {
-    display: none;
+    font-size: 14px;
   }
 `;
 
-// Desktop Resume Container
-const DesktopResumeContainer = styled.div`
-  /* Hide on mobile */
+// Tab navigation
+const TabContainer = styled.div`
+  background: #f9fafb;
+  border-radius: 12px 12px 0 0;
+  padding: 0 2rem;
+  display: flex;
+  gap: 0;
+
   @media (max-width: 768px) {
-    display: none;
+    padding: 0 1.5rem;
   }
 `;
 
-const CardHeader = styled.div`
+const TabButton = styled.button<{ $active: boolean }>`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid
+    ${({ $active }) => ($active ? "#4F46E5" : "transparent")};
+  color: ${({ $active }) => ($active ? "#1F2937" : "#6B7280")};
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    color: ${({ $active }) => ($active ? "#1F2937" : "#4F46E5")};
+  }
 
   svg {
-    font-size: 1.5rem;
-    color: ${({ theme }) => theme.colors.primary};
-    opacity: 0.9;
+    font-size: 18px;
+    color: ${({ $active }) => ($active ? "#1F2937" : "#6B7280")};
   }
 
-  h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-    color: ${({ theme }) => theme.colors.text};
-  }
-
-  /* Mobile styles */
   @media (max-width: 768px) {
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-
-    h2 {
-      font-size: 1.125rem;
-    }
+    padding: 0.875rem 1rem;
+    font-size: 14px;
 
     svg {
-      font-size: 1.25rem;
+      font-size: 16px;
     }
   }
 `;
 
-const DetailsGrid = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  margin-bottom: 2rem;
+// Tab content container
+const TabContent = styled.div`
+  padding: 2rem;
 
-  /* Mobile styles */
   @media (max-width: 768px) {
-    gap: 1rem;
-    margin-bottom: 1rem;
+    padding: 1.5rem;
   }
 `;
 
-const FormGroup = styled.div`
-  background: rgba(255, 255, 255, 0.02);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.2s ease;
-  width: 100%;
+// Job Details Form
+const DetailsForm = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const FormRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f3f4f6;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(255, 255, 255, 0.08);
+  &:last-child {
+    border-bottom: none;
   }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+`;
+
+const FormLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
 
   svg {
-    font-size: 1.125rem;
-    color: ${({ theme }) => theme.colors.textLight};
-    opacity: 0.8;
+    font-size: 16px;
+    color: #6b7280;
   }
 
-  label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: ${({ theme }) => theme.colors.textLight};
-    opacity: 0.8;
-    min-width: 70px;
+  @media (max-width: 768px) {
+    min-width: auto;
   }
+`;
 
-  .value {
-    font-size: 0.875rem;
-    color: ${({ theme }) => theme.colors.text};
-    line-height: 1.4;
+const FormValue = styled.div`
+  flex: 1;
+  font-size: 16px;
+  color: #1f2937;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  .value-text {
     flex: 1;
   }
 
-  &.status {
-    .value {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.375rem;
-      background: ${({ theme }) => theme.colors.primary}15;
-      color: ${({ theme }) => theme.colors.primary};
-      padding: 0.25rem 0.75rem;
-      border-radius: 6px;
-      font-weight: 500;
-      font-size: 0.875rem;
-      width: fit-content;
-    }
-  }
+  .edit-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
 
-  &.notes {
-    align-items: flex-start;
-    padding: 0.75rem 1rem;
+    &:hover {
+      color: #4f46e5;
+      border-color: #4f46e5;
+    }
 
     svg {
-      margin-top: 2px;
-    }
-
-    .value {
-      white-space: pre-wrap;
-      font-size: 0.875rem;
-      opacity: 0.9;
-      max-height: 80px;
-      overflow-y: auto;
-      padding-right: 0.5rem;
-
-      &::-webkit-scrollbar {
-        width: 4px;
-      }
-
-      &::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 4px;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 4px;
-      }
+      font-size: 14px;
     }
   }
 
-  /* Mobile styles */
   @media (max-width: 768px) {
-    padding: 0.75rem;
-    gap: 0.5rem;
-
-    label {
-      font-size: 0.8125rem;
-      min-width: 60px;
-    }
-
-    .value {
-      font-size: 0.8125rem;
-    }
-
-    svg {
-      font-size: 1rem;
-    }
-  }
-
-  /* Small mobile styles */
-  @media (max-width: 399px) {
-    padding: 0.5rem;
-    gap: 0.375rem;
-
-    label {
-      font-size: 0.75rem;
-      min-width: 50px;
-    }
-
-    .value {
-      font-size: 0.75rem;
-    }
-
-    svg {
-      font-size: 0.875rem;
-    }
-
-    &.notes {
-      padding: 0.5rem;
-
-      .value {
-        font-size: 0.75rem;
-        max-height: 60px;
-      }
-    }
+    width: 100%;
   }
 `;
 
-const UploadArea = styled.div`
-  border: 2px dashed rgba(255, 255, 255, 0.2);
+// Resume Versions Section
+const ResumeSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+`;
+
+const UploadCard = styled.div`
+  border: 2px dashed #e5e7eb;
   border-radius: 12px;
   padding: 2rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-bottom: 2rem;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.02);
+    border-color: #4f46e5;
+    background: #f9fafb;
   }
 
   svg {
     font-size: 2rem;
-    color: ${({ theme }) => theme.colors.primary};
+    color: #4f46e5;
     margin-bottom: 1rem;
   }
 
   h3 {
-    font-size: 1.125rem;
+    font-size: 16px;
+    color: #1f2937;
     font-weight: 500;
     margin: 0.5rem 0;
-    color: ${({ theme }) => theme.colors.text};
   }
 
   p {
-    font-size: 0.875rem;
-    color: ${({ theme }) => theme.colors.textLight};
-    margin: 0;
-  }
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    padding: 1.5rem;
-
-    svg {
-      font-size: 1.75rem;
-    }
-
-    h3 {
-      font-size: 1rem;
-    }
-
-    p {
-      font-size: 0.8125rem;
-    }
-  }
-
-  /* Small mobile styles */
-  @media (max-width: 399px) {
-    padding: 1rem;
-
-    svg {
-      font-size: 1.5rem;
-    }
-
-    h3 {
-      font-size: 0.875rem;
-    }
-
-    p {
-      font-size: 0.75rem;
-    }
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0.5rem 0 1rem 0;
   }
 `;
 
 const ChooseFileButton = styled.button`
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-  width: 100%;
-  padding: 0.875rem;
-  background: white;
-  color: ${({ theme }) => theme.colors.primary};
-  border: none;
-  border-radius: 25px;
-  font-size: 0.9375rem;
+  padding: 0.75rem 1.5rem;
+  background: #ffffff;
+  color: #4f46e5;
+  border: 1px solid #4f46e5;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-top: 1rem;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.9);
-    transform: translateY(-1px);
+    background: #4f46e5;
+    color: #ffffff;
   }
 
   svg {
-    font-size: 1.125rem;
-    margin: 0;
-  }
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    padding: 0.75rem;
-    font-size: 0.875rem;
-
-    svg {
-      font-size: 1rem;
-    }
-  }
-
-  /* Small mobile styles */
-  @media (max-width: 399px) {
-    padding: 0.625rem;
-    font-size: 0.8125rem;
-
-    svg {
-      font-size: 0.875rem;
-    }
+    font-size: 14px;
   }
 `;
 
 const VersionsTable = styled.div`
-  margin-top: 2rem;
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    margin-top: 1.5rem;
-  }
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
 `;
 
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 60px minmax(200px, 1fr) 120px 100px;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 0.5rem;
+  grid-template-columns: 80px 1fr 120px 100px;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
 
   span {
-    font-size: 0.875rem;
-    color: ${({ theme }) => theme.colors.textLight};
+    font-size: 14px;
+    color: #374151;
     font-weight: 500;
-    white-space: nowrap;
   }
 
-  /* Mobile styles */
   @media (max-width: 768px) {
-    grid-template-columns: 50px 1fr 80px 80px;
-    gap: 0.25rem;
-    padding: 0.5rem 0.75rem;
-
-    span {
-      font-size: 0.75rem;
-    }
+    grid-template-columns: 60px 1fr 80px 80px;
+    gap: 0.5rem;
+    padding: 0.75rem;
   }
 `;
 
-const VersionRow = styled.div`
+const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 60px minmax(200px, 1fr) 120px 100px;
-  gap: 0.5rem;
+  grid-template-columns: 80px 1fr 120px 100px;
+  gap: 1rem;
   padding: 1rem;
   align-items: center;
-  border-radius: 8px;
+  border-bottom: 1px solid #f3f4f6;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.02);
+    background: #f9fafb;
   }
 
-  /* Mobile styles */
+  &:last-child {
+    border-bottom: none;
+  }
+
   @media (max-width: 768px) {
-    grid-template-columns: 50px 1fr 80px 80px;
-    gap: 0.25rem;
+    grid-template-columns: 60px 1fr 80px 80px;
+    gap: 0.5rem;
     padding: 0.75rem;
   }
 `;
 
 const VersionBadge = styled.span`
-  background: rgba(99, 102, 241, 0.1);
-  color: ${({ theme }) => theme.colors.primary};
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.875rem;
+  background: #4f46e5;
+  color: #ffffff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 500;
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    padding: 0.125rem 0.5rem;
-    font-size: 0.75rem;
-  }
+  text-align: center;
 `;
 
 const FileName = styled.div`
   display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 14px;
+  color: #374151;
 
   svg {
-    color: ${({ theme }) => theme.colors.textLight};
-    font-size: 1.125rem;
-    flex-shrink: 0;
-    margin-top: 0.25rem;
-  }
-
-  span {
-    font-size: 0.9375rem;
-    color: ${({ theme }) => theme.colors.text};
-    overflow-wrap: break-word;
-    display: inline-block;
-    width: 20ch;
-    white-space: pre-wrap;
-  }
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    gap: 0.5rem;
-
-    svg {
-      font-size: 1rem;
-    }
-
-    span {
-      font-size: 0.8125rem;
-      width: 15ch;
-    }
+    font-size: 16px;
+    color: #6b7280;
   }
 `;
 
 const UploadDate = styled.span`
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.textLight};
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    font-size: 0.75rem;
-  }
+  font-size: 14px;
+  color: #6b7280;
 `;
 
 const ActionButtons = styled.div`
   display: flex;
   gap: 0.25rem;
   justify-content: flex-end;
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    gap: 0.125rem;
-  }
 `;
 
 const ActionButton = styled.button<{
@@ -779,165 +411,94 @@ const ActionButton = styled.button<{
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
-  width: 32px;
-  height: 32px;
-  background: ${({ theme, $variant }) => {
+  width: 28px;
+  height: 28px;
+  background: ${({ $variant }) => {
     switch ($variant) {
       case "primary":
-        return theme.colors.primary;
+        return "#4F46E5";
       case "danger":
-        return "rgba(239, 68, 68, 0.1)";
-      case "secondary":
+        return "#EF4444";
       default:
-        return "rgba(255, 255, 255, 0.05)";
+        return "#F3F4F6";
     }
   }};
   border: 1px solid
-    ${({ theme, $variant }) => {
+    ${({ $variant }) => {
       switch ($variant) {
         case "primary":
-          return "transparent";
+          return "#4F46E5";
         case "danger":
-          return "rgba(239, 68, 68, 0.2)";
-        case "secondary":
+          return "#EF4444";
         default:
-          return "rgba(255, 255, 255, 0.1)";
+          return "#E5E7EB";
       }
     }};
-  border-radius: 8px;
-  color: ${({ theme, $variant }) => {
+  border-radius: 6px;
+  color: ${({ $variant }) => {
     switch ($variant) {
       case "primary":
-        return "white";
+        return "#FFFFFF";
       case "danger":
-        return theme.colors.danger;
-      case "secondary":
+        return "#FFFFFF";
       default:
-        return theme.colors.text;
+        return "#6B7280";
     }
   }};
-  font-weight: 500;
-  transition: all 0.2s ease;
   cursor: pointer;
-
-  svg {
-    font-size: 1rem;
-    color: ${({ theme, $variant }) => {
-      switch ($variant) {
-        case "primary":
-          return "white";
-        case "danger":
-          return theme.colors.danger;
-        case "secondary":
-        default:
-          return theme.colors.primary;
-      }
-    }};
-  }
+  transition: all 0.2s ease;
 
   &:hover {
-    background: ${({ theme, $variant }) => {
-      switch ($variant) {
-        case "primary":
-          return `${theme.colors.primary}dd`;
-        case "danger":
-          return "rgba(239, 68, 68, 0.15)";
-        case "secondary":
-        default:
-          return "rgba(255, 255, 255, 0.08)";
-      }
-    }};
-    border-color: ${({ theme, $variant }) => {
-      switch ($variant) {
-        case "primary":
-          return "transparent";
-        case "danger":
-          return "rgba(239, 68, 68, 0.3)";
-        case "secondary":
-        default:
-          return "rgba(255, 255, 255, 0.15)";
-      }
-    }};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    width: 28px;
-    height: 28px;
-    padding: 0.375rem;
-
-    svg {
-      font-size: 0.875rem;
-    }
+  svg {
+    font-size: 12px;
   }
 `;
 
+// Delete section
 const DeleteSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
   text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 1rem;
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    padding: 1.5rem;
-    margin-top: 0.5rem;
-  }
 `;
 
 const DeleteWarning = styled.p`
-  color: ${({ theme }) => theme.colors.textLight};
+  color: #991b1b;
   margin-bottom: 1rem;
-  font-size: 0.9375rem;
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    font-size: 0.875rem;
-    margin-bottom: 0.75rem;
-  }
+  font-size: 14px;
 `;
 
-const DeleteJobButton = styled.button`
-  display: flex;
+const DeleteButton = styled.button`
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1.5rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 12px;
-  color: ${({ theme }) => theme.colors.danger};
-  font-size: 0.9375rem;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #ef4444;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(239, 68, 68, 0.15);
-    border-color: rgba(239, 68, 68, 0.3);
+    background: #dc2626;
+    border-color: #dc2626;
   }
 
   svg {
-    font-size: 1rem;
-    color: ${({ theme }) => theme.colors.danger};
-  }
-
-  /* Mobile styles */
-  @media (max-width: 768px) {
-    padding: 0.75rem 1.25rem;
-    font-size: 0.875rem;
-    gap: 0.5rem;
-
-    svg {
-      font-size: 0.875rem;
-    }
+    font-size: 14px;
   }
 `;
 
+// Editable field components (keeping existing logic)
 const EditableField = styled.div`
   position: relative;
   width: 100%;
@@ -951,21 +512,21 @@ const EditableField = styled.div`
   transition: border-color 0.2s ease, background-color 0.2s ease;
 
   &:hover:not(.editing) {
-    background: rgba(var(--color-primary-rgb), 0.03);
+    background: rgba(79, 70, 229, 0.03);
 
     .value {
-      color: ${({ theme }) => theme.colors.primary};
+      color: #4f46e5;
       opacity: 1;
     }
     .edit-icon {
-      color: ${({ theme }) => theme.colors.primary};
+      color: #4f46e5;
       opacity: 0.9;
     }
   }
 
   &.editing {
-    border: 1px solid ${({ theme }) => theme.colors.primary};
-    background: rgba(var(--color-primary-rgb), 0.03);
+    border: 1px solid #4f46e5;
+    background: rgba(79, 70, 229, 0.03);
   }
 `;
 
@@ -978,12 +539,12 @@ const ValueContainer = styled.div`
   .value {
     transition: color 0.2s ease, opacity 0.2s ease;
     opacity: 0.85;
-    font-size: 0.875rem;
+    font-size: 14px;
   }
 `;
 
 const EditIcon = styled.div`
-  font-size: 1rem;
+  font-size: 14px;
   opacity: 0.6;
   transition: color 0.2s ease, opacity 0.2s ease;
 `;
@@ -991,8 +552,8 @@ const EditIcon = styled.div`
 const Input = styled.input`
   background: transparent;
   border: none;
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 0.875rem;
+  color: #374151;
+  font-size: 14px;
   width: 100%;
 
   &:focus {
@@ -1003,8 +564,8 @@ const Input = styled.input`
 const Select = styled.select`
   background: transparent;
   border: none;
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 0.875rem;
+  color: #374151;
+  font-size: 14px;
   width: 100%;
   cursor: pointer;
 
@@ -1013,18 +574,18 @@ const Select = styled.select`
   }
 
   option {
-    background: ${({ theme }) => theme.colors.background};
-    color: ${({ theme }) => theme.colors.text};
+    background: #ffffff;
+    color: #374151;
   }
 `;
 
 const TextArea = styled.textarea`
   background: transparent;
   border: none;
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 0.875rem;
+  color: #374151;
+  font-size: 14px;
   width: 100%;
-  min-height: 100px;
+  min-height: 80px;
   resize: vertical;
 
   &:focus {
@@ -1147,7 +708,7 @@ const JobDetailPage: React.FC = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"details" | "resume">("details");
   const { isGuest } = useAuth();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -1304,7 +865,8 @@ const JobDetailPage: React.FC = () => {
     <PageContainer>
       <HeaderContainer>
         <BackButton onClick={() => navigate("/jobs")}>
-          <span>←</span> Back to Jobs
+          <FaArrowLeft />
+          Back to Jobs
         </BackButton>
         <SaveButton onClick={() => setIsSaved(!isSaved)} $isSaved={isSaved}>
           {isSaved ? <FaBookmark /> : <FaRegBookmark />}
@@ -1312,233 +874,188 @@ const JobDetailPage: React.FC = () => {
         </SaveButton>
       </HeaderContainer>
 
-      <CardsContainer>
-        <CardContainer>
-          <CardHeader>
+      <MainContainer>
+        <TabContainer>
+          <TabButton
+            $active={activeTab === "details"}
+            onClick={() => setActiveTab("details")}
+          >
             <FaBriefcase />
-            <h2>Job Details</h2>
-          </CardHeader>
-
-          <DetailsGrid>
-            <FormGroup>
-              <FaBuilding />
-              <label>Company</label>
-              <EditableValue
-                value={job.company}
-                field="company"
-                onSave={handleFieldSave}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FaSuitcase />
-              <label>Position</label>
-              <EditableValue
-                value={job.position}
-                field="position"
-                onSave={handleFieldSave}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FaClipboardList />
-              <label>Status</label>
-              <EditableValue
-                value={job.status}
-                field="status"
-                onSave={handleFieldSave}
-                options={Object.values(JobStatus)}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FaCalendarAlt />
-              <label>Applied</label>
-              <EditableValue
-                value={job.applied_date || ""}
-                type="date"
-                field="applied_date"
-                onSave={handleFieldSave}
-              />
-            </FormGroup>
-
-            <FormGroup style={{ alignItems: "flex-start" }}>
-              <FaFileAlt />
-              <label>Notes</label>
-              <EditableValue
-                value={job.notes || ""}
-                field="notes"
-                onSave={handleFieldSave}
-                multiline
-              />
-            </FormGroup>
-          </DetailsGrid>
-
-          {/* Mobile Resume Button */}
-          <MobileResumeButton onClick={() => setIsResumeModalOpen(true)}>
+            Job Details
+          </TabButton>
+          <TabButton
+            $active={activeTab === "resume"}
+            onClick={() => setActiveTab("resume")}
+          >
             <FaFileAlt />
             Resume Versions
-          </MobileResumeButton>
-        </CardContainer>
+          </TabButton>
+        </TabContainer>
 
-        <DesktopResumeContainer>
-          <CardContainer>
-            <CardHeader>
-              <FaFileAlt />
-              <h2>Resume Versions</h2>
-            </CardHeader>
+        <TabContent>
+          {activeTab === "details" && (
+            <DetailsForm>
+              <FormRow>
+                <FormLabel>
+                  <FaBuilding />
+                  Company
+                </FormLabel>
+                <FormValue>
+                  <div className="value-text">
+                    <EditableValue
+                      value={job.company}
+                      field="company"
+                      onSave={handleFieldSave}
+                    />
+                  </div>
+                </FormValue>
+              </FormRow>
 
-            <UploadArea onClick={handleFileUpload}>
-              <FaCloudUploadAlt />
-              <h3>Upload New Resume</h3>
-              <p>Drag and drop your file here or click to browse</p>
-              <ChooseFileButton>
-                <FaFolder />
-                Choose File
-              </ChooseFileButton>
-            </UploadArea>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-              accept=".pdf,.doc,.docx"
-            />
+              <FormRow>
+                <FormLabel>
+                  <FaSuitcase />
+                  Position
+                </FormLabel>
+                <FormValue>
+                  <div className="value-text">
+                    <EditableValue
+                      value={job.position}
+                      field="position"
+                      onSave={handleFieldSave}
+                    />
+                  </div>
+                </FormValue>
+              </FormRow>
 
-            <VersionsTable>
-              <TableHeader>
-                <span>Version</span>
-                <span>Filename</span>
-                <span>Upload Date</span>
-                <span>Actions</span>
-              </TableHeader>
+              <FormRow>
+                <FormLabel>
+                  <FaClipboardList />
+                  Status
+                </FormLabel>
+                <FormValue>
+                  <div className="value-text">
+                    <EditableValue
+                      value={job.status}
+                      field="status"
+                      onSave={handleFieldSave}
+                      options={Object.values(JobStatus)}
+                    />
+                  </div>
+                </FormValue>
+              </FormRow>
 
-              {job.resumes.map((version) => (
-                <VersionRow key={version.id}>
-                  <VersionBadge>v{version.version}</VersionBadge>
-                  <FileName>
-                    <FaFileAlt />
-                    <span>{version.filename}</span>
-                  </FileName>
-                  <UploadDate>
-                    {new Date(version.upload_date).toLocaleString()}
-                  </UploadDate>
-                  <ActionButtons>
-                    <ActionButton
-                      title="View"
-                      onClick={() => handleView(version.id)}
-                    >
-                      <FaEye />
-                    </ActionButton>
-                    <ActionButton
-                      title="Download"
-                      onClick={() => handleDownload(version.id)}
-                    >
-                      <FaDownload />
-                    </ActionButton>
-                    <ActionButton
-                      title="Delete"
-                      className="delete"
-                      onClick={() => handleDelete(version.id)}
-                    >
-                      <FaTrash />
-                    </ActionButton>
-                  </ActionButtons>
-                </VersionRow>
-              ))}
-            </VersionsTable>
-          </CardContainer>
-        </DesktopResumeContainer>
-      </CardsContainer>
+              <FormRow>
+                <FormLabel>
+                  <FaCalendarAlt />
+                  Applied Date
+                </FormLabel>
+                <FormValue>
+                  <div className="value-text">
+                    <EditableValue
+                      value={job.applied_date || ""}
+                      type="date"
+                      field="applied_date"
+                      onSave={handleFieldSave}
+                    />
+                  </div>
+                </FormValue>
+              </FormRow>
+
+              <FormRow>
+                <FormLabel>
+                  <FaFileAlt />
+                  Notes
+                </FormLabel>
+                <FormValue>
+                  <div className="value-text">
+                    <EditableValue
+                      value={job.notes || ""}
+                      field="notes"
+                      onSave={handleFieldSave}
+                      multiline
+                    />
+                  </div>
+                </FormValue>
+              </FormRow>
+            </DetailsForm>
+          )}
+
+          {activeTab === "resume" && (
+            <ResumeSection>
+              <UploadCard onClick={handleFileUpload}>
+                <FaCloudUploadAlt />
+                <h3>Upload New Resume</h3>
+                <p>Drag and drop your file here or click to browse</p>
+                <ChooseFileButton>
+                  <FaFolder />
+                  Choose File
+                </ChooseFileButton>
+              </UploadCard>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+                accept=".pdf,.doc,.docx"
+              />
+
+              <VersionsTable>
+                <TableHeader>
+                  <span>Version</span>
+                  <span>Filename</span>
+                  <span>Upload Date</span>
+                  <span>Actions</span>
+                </TableHeader>
+
+                {job.resumes.map((version) => (
+                  <TableRow key={version.id}>
+                    <VersionBadge>v{version.version}</VersionBadge>
+                    <FileName>
+                      <FaFileAlt />
+                      {version.filename}
+                    </FileName>
+                    <UploadDate>
+                      {new Date(version.upload_date).toLocaleDateString()}
+                    </UploadDate>
+                    <ActionButtons>
+                      <ActionButton
+                        title="View"
+                        onClick={() => handleView(version.id)}
+                      >
+                        <FaEye />
+                      </ActionButton>
+                      <ActionButton
+                        title="Download"
+                        onClick={() => handleDownload(version.id)}
+                      >
+                        <FaDownload />
+                      </ActionButton>
+                      <ActionButton
+                        title="Delete"
+                        $variant="danger"
+                        onClick={() => handleDelete(version.id)}
+                      >
+                        <FaTrash />
+                      </ActionButton>
+                    </ActionButtons>
+                  </TableRow>
+                ))}
+              </VersionsTable>
+            </ResumeSection>
+          )}
+        </TabContent>
+      </MainContainer>
 
       <DeleteSection>
         <DeleteWarning>
           Deleting this job will permanently remove all associated data and
           resume versions.
         </DeleteWarning>
-        <DeleteJobButton onClick={handleDeleteJob}>
+        <DeleteButton onClick={handleDeleteJob}>
           <FaTrash />
           Delete Job Application
-        </DeleteJobButton>
+        </DeleteButton>
       </DeleteSection>
-
-      {/* Mobile Resume Modal */}
-      <MobileResumeModal
-        $isOpen={isResumeModalOpen}
-        onClick={() => setIsResumeModalOpen(false)}
-      >
-        <MobileResumeSheet
-          $isOpen={isResumeModalOpen}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <MobileResumeHeader>
-            <h3>Resume Versions</h3>
-            <button onClick={() => setIsResumeModalOpen(false)}>
-              <FaTimes />
-            </button>
-          </MobileResumeHeader>
-
-          <UploadArea onClick={handleFileUpload}>
-            <FaCloudUploadAlt />
-            <h3>Upload New Resume</h3>
-            <p>Drag and drop your file here or click to browse</p>
-            <ChooseFileButton>
-              <FaFolder />
-              Choose File
-            </ChooseFileButton>
-          </UploadArea>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-            accept=".pdf,.doc,.docx"
-          />
-
-          <VersionsTable>
-            <TableHeader>
-              <span>Version</span>
-              <span>Filename</span>
-              <span>Upload Date</span>
-              <span>Actions</span>
-            </TableHeader>
-
-            {job.resumes.map((version) => (
-              <VersionRow key={version.id}>
-                <VersionBadge>v{version.version}</VersionBadge>
-                <FileName>
-                  <FaFileAlt />
-                  <span>{version.filename}</span>
-                </FileName>
-                <UploadDate>
-                  {new Date(version.upload_date).toLocaleString()}
-                </UploadDate>
-                <ActionButtons>
-                  <ActionButton
-                    title="View"
-                    onClick={() => handleView(version.id)}
-                  >
-                    <FaEye />
-                  </ActionButton>
-                  <ActionButton
-                    title="Download"
-                    onClick={() => handleDownload(version.id)}
-                  >
-                    <FaDownload />
-                  </ActionButton>
-                  <ActionButton
-                    title="Delete"
-                    className="delete"
-                    onClick={() => handleDelete(version.id)}
-                  >
-                    <FaTrash />
-                  </ActionButton>
-                </ActionButtons>
-              </VersionRow>
-            ))}
-          </VersionsTable>
-        </MobileResumeSheet>
-      </MobileResumeModal>
     </PageContainer>
   );
 };

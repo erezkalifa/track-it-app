@@ -14,31 +14,83 @@ const PageContainer = styled.div`
 
 const PageHeader = styled.div`
   margin-bottom: 2rem;
+  text-align: center;
+
+  /* Left-align on larger widescreens */
+  @media (min-width: 1200px) {
+    text-align: left;
+  }
 `;
 
-const PageTitle = styled.h2`
-  margin-bottom: 0.5rem;
-  color: ${({ theme }) => theme.colors.text};
+const PersonalGreeting = styled.h3`
+  color: #4f46e5;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  margin-top: 0;
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
-const PageSubtitle = styled.p`
-  color: ${({ theme }) => theme.colors.textLight};
-  margin: 0;
+const MotivationalHeadline = styled.h1`
+  color: #1f2937;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 12px;
+  margin-top: 0;
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    font-size: 24px;
+  }
+`;
+
+const KPIChipsContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    gap: 8px;
+  }
+`;
+
+const KPIChip = styled.div`
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
 `;
 
 const JobsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
   margin-top: 2rem;
   align-items: start;
+  padding: 0 16px;
+
+  /* Tablet styles */
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
   /* Mobile styles */
   @media (max-width: 768px) {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    padding: 0.5rem 0;
+    gap: 16px;
+    padding: 0 16px;
     position: relative;
   }
 `;
@@ -182,6 +234,21 @@ const AddJobButton = styled.button`
   }
 `;
 
+const FilterBarContainer = styled.div`
+  /* Container Structure */
+  display: flex;
+  flex-direction: column;
+  margin: 16px 0;
+  position: relative;
+  z-index: 1000;
+  width: 100%;
+
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    display: none; /* Hide desktop filter bar on mobile */
+  }
+`;
+
 export const JobListPage = () => {
   const { jobs, loading: isLoading } = useJobs();
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
@@ -197,6 +264,17 @@ export const JobListPage = () => {
   const location = useLocation();
   const [newJobId, setNewJobId] = useState<number | null>(null);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  // Calculate KPI summary
+  const kpiStats = {
+    active: jobs.filter(
+      (job) =>
+        job.status === JobStatus.APPLIED || job.status === JobStatus.PENDING
+    ).length,
+    interviewing: jobs.filter((job) => job.status === JobStatus.INTERVIEWING)
+      .length,
+    offers: jobs.filter((job) => job.status === JobStatus.ACCEPTED).length,
+  };
 
   // Apply filters whenever filters state changes
   useEffect(() => {
@@ -320,15 +398,22 @@ export const JobListPage = () => {
   return (
     <PageContainer>
       <PageHeader>
-        <PageTitle>Job Applications</PageTitle>
-        <PageSubtitle>Track and manage your job search journey</PageSubtitle>
+        <PersonalGreeting>Welcome back, Erez 👋</PersonalGreeting>
+        <MotivationalHeadline>Your Job Applications</MotivationalHeadline>
+        <KPIChipsContainer>
+          <KPIChip>{kpiStats.active} Active</KPIChip>
+          <KPIChip>{kpiStats.interviewing} Interviewing</KPIChip>
+          <KPIChip>{kpiStats.offers} Offers</KPIChip>
+        </KPIChipsContainer>
       </PageHeader>
 
-      <FilterBar
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onResetFilters={handleResetFilters}
-      />
+      <FilterBarContainer>
+        <FilterBar
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          onResetFilters={handleResetFilters}
+        />
+      </FilterBarContainer>
 
       {/* Mobile Filter Button - always visible, positioned above content */}
       <div
